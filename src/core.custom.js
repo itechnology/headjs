@@ -7,10 +7,10 @@
     http://headjs.com
 
     Custom implementation:
-        * Removed feature detection code
+        * Added/changed some browser detections
         * Added e, lt, gt, lte, gte detections for browser versions & height/width
         * Restricted html5 shiv to ie-lt9
-        * Inverted css router naming conventions
+        * Inverted css router naming convention
 */
 (function(window, undefined) {
 
@@ -23,7 +23,6 @@
          },
          klass = [];
 
-
     if (window.head_conf) {
         for (var key in window.head_conf) {
             if (window.head_conf[key] !== undefined) {
@@ -34,6 +33,11 @@
 
     function pushClass(name) {
         klass[klass.length] = name;
+    }
+
+    function removeClass(name) {
+        var re = new RegExp("\\b" + name + "\\b");
+        html.className = html.className.replace(re, '');
     }
 
     function each(arr, fn) {
@@ -48,19 +52,40 @@
     };
 
     api.feature = function(key, enabled, queue) {
+
         // internal: apply all classes
-        html.className += ' ' + klass.join( ' ' );
-        klass = [];
+        if (!key) {
+            html.className += ' ' + klass.join( ' ' );
+            klass = [];
+            return;
+        }
+
+        if (Object.prototype.toString.call(enabled) == '[object Function]') {
+            enabled = enabled.call();
+        }
+
+        pushClass(key + '-' + enabled);
+        api[key] = !!enabled;
+
+        // apply class to HTML element
+        if (!queue) {
+            removeClass(key + '-false');
+            removeClass(key + '-true');
+            api.feature();
+        }
+
+        return api;
     };
 
     // browser type & version
+    // http://www.zytrax.com/tech/web/browser_ids.htm
+    // http://www.zytrax.com/tech/web/mobile_ids.html
     var ua = window.navigator.userAgent.toLowerCase();
-
-    ua = /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
-         /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
-         /(opera)(?:.*version)?[ \/]([\w.]+)/.exec( ua ) ||
-         /(msie) ([\w.]+)/.exec( ua ) ||
-         !/compatible/.test( ua ) && /(mozilla)(?:.*? rv:([\w.]+))?/.exec( ua ) || [];
+    ua = /(chrome|firefox)[ \/]([\w.]+)/.exec( ua )                 || // Chrome & Firefox
+         /(iphone|ipad|ipod)(?:.*version)?[ \/]([\w.]+)/.exec( ua ) || // Mobile IOS
+         /(android)(?:.*version)?[ \/]([\w.]+)/.exec( ua )          || // Mobile Webkit
+         /(webkit|opera)(?:.*version)?[ \/]([\w.]+)/.exec( ua )     || // Safari & Opera
+         /(msie) ([\w.]+)/.exec( ua ) || [];
 
     var browser = ua[1];
     var version = parseFloat(ua[2]);
@@ -76,9 +101,17 @@
             stop  = 10;
             break;
 
+        // Add/remove extra tests here
         case "chrome":
             start = 13;
             stop  = 18;
+            break;
+
+        case "webkit":
+            browser = "safari";
+
+            start = 9;
+            stop  = 12;
             break;
 
         case "opera":
@@ -86,30 +119,31 @@
             stop  = 12;
             break;
 
-        case "mozilla":
+        case "firefox":
+            browser = "ff";
+
             start = 3;
             stop  = 11;
             break;
     }
 
-    api.browser        = { version: version };
+    api.browser          = { version: version };
     api.browser[browser] = true;
 
     pushClass(browser);
-    for (var ver = start; ver <= stop; ver++) {
-        if (version < ver) {
-            pushClass(browser + "-lt" + ver);
+    for (var v = start; v <= stop; v++) {
+        if (version < v) {
+            pushClass(browser + "-lt" + v);
         }
-        if (version == ver) {
-            pushClass(browser + "-e"   + ver);
-            pushClass(browser + "-lte" + ver);
-            pushClass(browser + "-gte" + ver);
+        if (version === v) {
+            pushClass(browser + "-e"   + v);
+            pushClass(browser + "-lte" + v);
+            pushClass(browser + "-gte" + v);
         }
-        if (version > ver) {
-            pushClass(browser + "-gt" + ver);
+        if (version > v) {
+            pushClass(browser + "-gt" + v);
         }
     }
-
 
     // IE lt9 specific
     if (api.browser.ie && version < 9) {
@@ -119,15 +153,11 @@
         });
     }
 
-
     // CSS "router"
     each(location.pathname.split("/"), function(el, i) {
-
         if (this.length > 2 && this[i + 1] !== undefined) {
             if (i) { pushClass(conf.section + this.slice(1, i + 1).join("-")); }
-
         } else {
-
             // pageId
             var id = el || "index", index = id.indexOf(".");
             if (index > 0) { id = id.substring(0, index); }
@@ -177,6 +207,8 @@
 
     screenSize();
     window.onresize = screenSize;
+
+    api.feature("js", true).feature();
 })(window);
 
 
