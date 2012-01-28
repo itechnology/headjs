@@ -1,0 +1,44 @@
+<!doctype html>
+
+<head>
+	<script src="../../src/core.custom.js"></script>
+	
+	<style>
+	body {
+		width:600px;
+		margin:50px auto;
+	}
+    #result {
+        font-family: Times New Roman;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .h-lt600 #result, .w-lt1024 #result {
+        background-color: black;
+        color: white;
+    }
+	</style>
+	
+</head>
+
+<body>
+	<div id="result">
+        Resize window to start seeing results
+	</div>
+    
+    <script>
+        function showResult() {
+            document.getElementById("result").innerHTML = document.documentElement.className;
+        }
+        if (window.addEventListener) {
+            window.addEventListener("resize", showResult, false);
+        }
+        else {
+            window.attachEvent("onresize", showResult);
+        }
+    </script>
+</body>
+
+	
+
