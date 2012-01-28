@@ -130,16 +130,23 @@
 
     // screen resolution: w-100, lt-480, lt-1024 ...
     function screenSize() {
-        var w = window.outerWidth || html.clientWidth;
+        // resolution or viewport detection ?
+        var w = !!conf.viewport ? html.clientWidth : (window.outerWidth || html.clientWidth);
 
         // remove earlier widths
-        html.className = html.className.replace(/ (w|lt)-\d+/g, "");
+        html.className = html.className.replace(/ (w|gt|lt)-\d+/g, "");
 
         // add new ones
         pushClass("w-" + Math.round(w / 100) * 100);
 
         each(conf.screens, function(width) {
-            if (w <= width) { pushClass("lt-" + width); }
+            // which detection mode are we using ? gt/lt
+            if (!!conf.greater) {
+                if (w > width) { pushClass("gt-" + width); }
+            }
+            else {
+                if (w < width) { pushClass("lt-" + width); }
+            }
         });
 
         api.feature();
