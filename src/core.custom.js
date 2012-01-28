@@ -107,6 +107,27 @@
             stop  = 18;
             break;
 
+        case "firefox":
+            browser = "ff";
+
+            start = 3;
+            stop  = 11;
+            break;
+
+        case "ipod":
+        case "ipad":
+        case "iphone":
+            browser = "ios";
+
+            start = 3;
+            stop  = 5;
+            break;
+
+        case "android":
+            start = 2;
+            stop  = 4;
+            break;
+
         case "webkit":
             browser = "safari";
 
@@ -117,13 +138,6 @@
         case "opera":
             start = 9;
             stop  = 12;
-            break;
-
-        case "firefox":
-            browser = "ff";
-
-            start = 3;
-            stop  = 11;
             break;
     }
 
