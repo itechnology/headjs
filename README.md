@@ -4,7 +4,7 @@ Modified version of head.js
 
 **File is in /src/core.custom.js**
 
-* Removed feature detection code
+* Added/changed some browser detections
 * Detect viewport instead of resolution
 * Added e, lt, gt, lte, gte detections for browsers/versions & height/width
  * ie-lt6, w-gte1024, h-lt768
