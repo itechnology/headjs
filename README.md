@@ -1,6 +1,8 @@
 Modified version of head.js [http://headjs.com](http://headjs.com)
 
 
+* [Try it](http://itechnology.github.com/headjs/)
+
     Changes:
         * Added/changed some browser detections
         * Added e, lt, gt detections for browser/versions & height/width
