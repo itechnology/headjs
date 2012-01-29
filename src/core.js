@@ -149,7 +149,8 @@
         if (version >= v) {
             pushClass(browser + "-gte" + v);
         }
-        else {
+
+        if (version <= v) {
             pushClass(browser + "-lte" + v);
         }
 
@@ -203,7 +204,8 @@
             if (w >= width) {
                 pushClass("w-gte" + width);
             }
-            else {
+
+            if (w <= width) {
                 pushClass("w-lte" + width);
             }
 
@@ -222,7 +224,8 @@
              if (h >= height) {
                  pushClass("h-gte"  + height);
              }
-             else {
+
+             if (h <= height) {
                  pushClass("h-lte" + height);
              }
 
