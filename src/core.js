@@ -5,18 +5,31 @@
     Version     0.96
 
     http://headjs.com
+    *****************
+
+    Further modifications by: https://github.com/itechnology
+
+    Changes:
+        * Added/changed some browser detections
+        * Added e, lt, gt detections for browser/versions & height/width
+          * ie, ie-e6, h-gt468, w-lt1024
+        * Restricted html5 shiv to ie-lt9
+        * Inverted css router naming convention
+          * page-name, section-name
+        * Inverted feature detection naming convention & made them boolean
+          * js-true, fontface-false
+        * Using viewport size detection instead of resolution detection
 */
 ;(function(win, undefined) {
     var doc  = win.document, nav = win.navigator;
-    var html = doc.documentElement,
-        conf = {
-            screens: [320, 480, 640, 768, 1024, 1280, 1440, 1680, 1920],
-            section: "-section",
-            page: "-page",
-            head: "head"
+    var html = doc.documentElement, conf = {
+            width : [320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
+            height : [240, 320, 480, 600, 768, 800, 900, 1080],
+            section: "section-",
+            page   : "page-",
+            head   : "head"
          },
          klass = [];
-
 
     if (win.head_conf) {
         for (var key in win.head_conf) {
@@ -59,13 +72,13 @@
             enabled = enabled.call();
         }
 
-        pushClass((enabled ? '' : 'no-') + key);
+        pushClass(key + '-' + enabled);
         api[key] = !!enabled;
 
         // apply class to HTML element
         if (!queue) {
-            removeClass('no-' + key);
-            removeClass(key);
+            removeClass(key + '-false');
+            removeClass(key + '-true');
             api.feature();
         }
 
@@ -75,78 +88,161 @@
     // browser type & version
     var ua = nav.userAgent.toLowerCase();
 
-    ua = /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
-         /(opera)(?:.*version)?[ \/]([\w.]+)/.exec( ua ) ||
-         /(msie) ([\w.]+)/.exec( ua ) ||
-        !/compatible/.test( ua ) && /(mozilla)(?:.*? rv:([\w.]+))?/.exec( ua ) || [];
+    // http://www.zytrax.com/tech/web/browser_ids.htm
+    // http://www.zytrax.com/tech/web/mobile_ids.html
+    ua = /(chrome|firefox)[ \/]([\w.]+)/.exec( ua )                 || // Chrome & Firefox
+         /(iphone|ipad|ipod)(?:.*version)?[ \/]([\w.]+)/.exec( ua ) || // Mobile IOS
+         /(android)(?:.*version)?[ \/]([\w.]+)/.exec( ua )          || // Mobile Webkit
+         /(webkit|opera)(?:.*version)?[ \/]([\w.]+)/.exec( ua )     || // Safari & Opera
+         /(msie) ([\w.]+)/.exec( ua )                               || [];
 
 
-    if (ua[1] == 'msie') {
-        ua[1] = 'ie';
-        ua[2] = doc.documentMode || ua[2];
+    var browser = ua[1];
+    var version = parseFloat(ua[2]);
+
+    var start = 0;
+    var stop  = 0;
+    switch(browser) {
+        case "msie":
+            browser = 'ie';
+            version = doc.documentMode || version;
+
+            start = 6;
+            stop  = 10;
+            break;
+
+        // Add/remove extra tests here
+        case "chrome":
+            start = 13;
+            stop  = 18;
+            break;
+
+        case "firefox":
+            browser = "ff";
+
+            start = 3;
+            stop  = 11;
+            break;
+
+        case "ipod":
+        case "ipad":
+        case "iphone":
+            browser = "ios";
+
+            start = 3;
+            stop  = 5;
+            break;
+
+        case "android":
+            start = 2;
+            stop  = 4;
+            break;
+
+        case "webkit":
+            browser = "safari";
+
+            start = 9;
+            stop  = 12;
+            break;
+
+        case "opera":
+            start = 9;
+            stop  = 12;
+            break;
     }
 
-    pushClass(ua[1]);
+    // name can be used further on for various tasks, like fontface detection in css3.js
+    api.browser = {
+        name   : browser,
+        version: version
+    };
+    api.browser[browser] = true;
 
-    api.browser = { version: ua[2] };
-    api.browser[ua[1]] = true;
-
-    // IE specific
-    if (api.browser.ie) {
-
-        pushClass("ie" + parseFloat(ua[2]));
-
-        // IE versions
-        for (var ver = 3; ver < 11; ver++) {
-            if (parseFloat(ua[2]) < ver) { pushClass("lt-ie" + ver); }
+    pushClass(browser);
+    for (var v = start; v <= stop; v++) {
+        if (version < v) {
+            pushClass(browser + "-lt" + v);
         }
+        // unfortunately we are skipping numbers like 3.6 here which are rounded to 3...
+        if (version === v) {
+            pushClass(browser + "-e" + v);
+        }
+        if (version > v) {
+            pushClass(browser + "-gt" + v);
+        }
+    }
 
+    // IE lt9 specific
+    if (api.browser.ie && version < 9) {
         // HTML5 support
         each("abbr|article|aside|audio|canvas|details|figcaption|figure|footer|header|hgroup|mark|meter|nav|output|progress|section|summary|time|video".split("|"), function(el) {
             doc.createElement(el);
         });
-                
     }
-    
 
     // CSS "router"
     each(win.location.pathname.split("/"), function(el, i) {
-
         if (this.length > 2 && this[i + 1] !== undefined) {
-            if (i) { pushClass(this.slice(1, i+1).join("-") + conf.section); }
-
+            if (i) {
+                pushClass(conf.section + this.slice(1, i + 1).join("-"));
+            }
         } else {
-
             // pageId
             var id = el || "index", index = id.indexOf(".");
-            if (index > 0) { id = id.substring(0, index); }
-            html.id = id + conf.page;
+            if (index > 0) {
+                id = id.substring(0, index);
+            }
+            html.id = conf.page + id;
 
             // on root?
-            if (!i) { pushClass("root" + conf.section); }
+            if (!i) {
+                pushClass(conf.section + "root");
+            }
       }
     });
 
 
-    // screen resolution: w-100, lt-480, lt-1024 ...
+    // viewport resolutions: w-e320, w-lt480, w-lt1024 / h-e600, h-lt768, h-lt1024
     function screenSize() {
-        // resolution or viewport detection ?
-        var w = !!conf.viewport ? html.clientWidth : (win.outerWidth || html.clientWidth);
+        // remove earlier sizes
+        html.className = html.className.replace(/ (w|w-e|w-gt|w-lt|h|h-e|h-gt|h-lt)\d+/g, "");
 
-        // remove earlier widths
-        html.className = html.className.replace(/ (w|gt|lt)-\d+/g, "");
+        // Viewport width
+        var w = html.clientWidth;
 
-        // add new ones
-        pushClass("w-" + Math.round(w / 100) * 100);
+        // just for debugging purposes
+        pushClass("w" + w);
 
-        each(conf.screens, function(width) {
-            // which detection mode are we using ? gt/lt
-            if (!!conf.greater) {
-                if (w > width) { pushClass("gt-" + width); }
+        each(conf.width, function(width) {
+            if (w > width) {
+                pushClass("w-gt" + width);
+            }
+            else if (w < width) {
+                pushClass("w-lt" + width);
             }
             else {
-                if (w < width) { pushClass("lt-" + width); }
+                // this will rarely happen
+                pushClass("w-e" + width);
             }
+        });
+
+        // Viewport height
+        var h = html.clientHeight;
+
+        // just for debugging purposes
+        pushClass("h" + h);
+
+        each(conf.height, function(height) {
+             if (h > height) {
+                 pushClass("h-gt"  + height);
+             }
+             else if (h < height) {
+                 pushClass("h-lt" + height);
+             }
+             else {
+                 // this will rarely happen
+                 pushClass("h-e" + height);
+             }
         });
 
         api.feature();
@@ -155,6 +251,5 @@
     screenSize();
     win.onresize = screenSize;
 
-    api.feature("js", true).feature();
-
+    //api.feature("js", true).feature();
 })(window);

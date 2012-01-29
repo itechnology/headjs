@@ -1,7 +1,8 @@
 <!doctype html>
 
 <head>
-	<script src="../../src/core.custom.js"></script>
+    <script src="src/core.js"></script>
+    <script src="src/css3.js"></script>
 	
 	<style>
 	body {
@@ -31,6 +32,7 @@
         function showResult() {
             document.getElementById("result").innerHTML = document.documentElement.className;
         }
+
         if (window.addEventListener) {
             window.addEventListener("resize", showResult, false);
         }

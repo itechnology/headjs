@@ -5,8 +5,17 @@
     Version     0.96
 
     http://headjs.com
+    *****************
+
+    Further modifications by: https://github.com/itechnology
+
+    Changes:
+        * Added/changed some browser detections in core.js
+        * In core.js added name to browser object so we can switch on browser.name instead of starting regex detection all over again here
 */
-(function() {
+;(function(win, undefined) {
+    var doc  = win.document, nav = win.navigator;
+
     /*
         To add a new test:
 
@@ -20,15 +29,14 @@
         https://github.com/Modernizr/Modernizr/blob/master/modernizr.js
     */
 
-
     /* CSS modernizer */
-    var el = document.createElement("i"),
-         style = el.style,
-         prefs = ' -o- -moz- -ms- -webkit- -khtml- '.split(' '),
+    var el = doc.createElement("i"),
+         style    = el.style,
+         prefs    = ' -o- -moz- -ms- -webkit- -khtml- '.split(' '),
          domPrefs = 'Webkit Moz O ms Khtml'.split(' '),
 
-         head_var = window.head_conf && head_conf.head || "head",
-         api = window[head_var];
+         head_var = win.head_conf && win.head_conf.head || "head",
+         api      = win[head_var];
 
 
      // Thanks Paul Irish!
@@ -101,25 +109,39 @@
             return testAll("transition");
         },
 
-        /*
-            font-face support. Uses browser sniffing but is synchronous.
-
-            http://paulirish.com/2009/font-face-feature-detection/
-        */
+        /* Euhmm ..
+         * i guess version numbers all depend on what kind of font detection you actually want: svg, woff, ttf/otf, or eot
+         * http://caniuse.com/#search=font
+         * The following values are set up for WOFF
+         ***********************/
         fontface: function() {
-            var ua = navigator.userAgent, parsed;
+            var browser = api.browser.name, version = api.browser.version;
 
-            if (/*@cc_on@if(@_jscript_version>=5)!@end@*/0)
-                return true;
-                
-            if (parsed = ua.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/))
-                return parsed[1] >= '4.0.249.4' || 1 * parsed[1].split(".")[0] > 5;
-            if ((parsed = ua.match(/Safari\/(\d+\.\d+)/)) && !/iPhone/.test(ua))
-                return parsed[1] >= '525.13';
-            if (/Opera/.test({}.toString.call(window.opera)))
-                return opera.version() >= '10.00';
-            if (parsed = ua.match(/rv:(\d+\.\d+\.\d+)[^b].*Gecko\//))
-                return parsed[1] >= '1.9.1';
+            switch(browser) {
+                case "ie":
+                    return version >= 9;
+
+                case "chrome":
+                    return version >= 13;
+
+                case "ff":
+                    return version >= 6;
+
+                case "ios":
+                    return version >= 5;
+
+                case "android":
+                    return false;
+
+                case "safari":
+                    return version >= 5.1;
+
+                case "opera":
+                    return version >= 10;
+
+                default:
+                    return false;
+            }
 
             return false;
         }
@@ -135,6 +157,4 @@
     // enable features at once
     api.feature();
 
-})();
-
-
+})(window);
