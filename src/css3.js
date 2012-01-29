@@ -2,16 +2,9 @@
     Head JS     The only script in your <HEAD>
     Copyright   Tero Piirainen (tipiirai)
     License     MIT / http://bit.ly/mit-license
-    Version     0.96
+    Version     Modified: v0.96
 
-    http://headjs.com
-    *****************
-
-    Further modifications by: https://github.com/itechnology
-
-    Changes:
-        * Added/changed some browser detections in core.js
-        * In core.js added name to browser object so we can switch on browser.name instead of starting regex detection all over again here
+    https://github.com/itechnology/headjs
 */
 ;(function(win, undefined) {
     var doc  = win.document, nav = win.navigator;

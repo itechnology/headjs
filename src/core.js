@@ -2,23 +2,9 @@
     Head JS     The only script in your <HEAD>
     Copyright   Tero Piirainen (tipiirai)
     License     MIT / http://bit.ly/mit-license
-    Version     0.96
+    Version     Modified: v0.96
 
-    http://headjs.com
-    *****************
-
-    Further modifications by: https://github.com/itechnology
-
-    Changes:
-        * Added/changed some browser detections
-        * Added e, lt, gt detections for browser/versions & height/width
-          * ie, ie-eq6, h-gte468, w-lte1024
-        * Restricted html5 shiv to ie < 9
-        * Inverted css router naming convention
-          * page-name, section-name
-        * Inverted feature detection naming convention & made them boolean
-          * js-true, fontface-false
-        * Using viewport size detection instead of resolution detection
+    https://github.com/itechnology/headjs
 */
 ;(function(win, undefined) {
     var doc  = win.document, nav = win.navigator;
