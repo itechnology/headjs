@@ -21,6 +21,7 @@ Changed from head.js v0.96:
 
 
 Typo:
+
     * On head.js site it is stated that Iphone cannot cache files larger than 15Ko/25Ko
       * There seems to be a lot of contradictory info out there
     * But please check this out if you feel concerned
