@@ -12,8 +12,8 @@
     Changes:
         * Added/changed some browser detections
         * Added e, lt, gt detections for browser/versions & height/width
-          * ie, ie-e6, h-gt468, w-lt1024
-        * Restricted html5 shiv to ie-lt9
+          * ie, ie-eq6, h-gte468, w-lte1024
+        * Restricted html5 shiv to ie < 9
         * Inverted css router naming convention
           * page-name, section-name
         * Inverted feature detection naming convention & made them boolean
@@ -23,7 +23,7 @@
 ;(function(win, undefined) {
     var doc  = win.document, nav = win.navigator;
     var html = doc.documentElement, conf = {
-            width : [320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
+            width  : [320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
             height : [240, 320, 480, 600, 768, 800, 900, 1080],
             section: "section-",
             page   : "page-",
@@ -160,15 +160,15 @@
 
     pushClass(browser);
     for (var v = start; v <= stop; v++) {
-        if (version < v) {
-            pushClass(browser + "-lt" + v);
+        if (version >= v) {
+            pushClass(browser + "-gte" + v);
         }
-        // unfortunately we are skipping numbers like 3.6 here which are rounded to 3...
+        else {
+            pushClass(browser + "-lte" + v);
+        }
+
         if (version === v) {
-            pushClass(browser + "-e" + v);
-        }
-        if (version > v) {
-            pushClass(browser + "-gt" + v);
+            pushClass(browser + "-eq" + v);
         }
     }
 
@@ -202,46 +202,46 @@
     });
 
 
-    // viewport resolutions: w-e320, w-lt480, w-lt1024 / h-e600, h-lt768, h-lt1024
+    // viewport resolutions: w-eq320, w-lte480, w-lte1024 / h-eq600, h-lte768, h-lte1024
     function screenSize() {
         // remove earlier sizes
-        html.className = html.className.replace(/ (w|w-e|w-gt|w-lt|h|h-e|h-gt|h-lt)\d+/g, "");
+        html.className = html.className.replace(/ (w|w-eq|w-gte|w-lte|h|h-eq|h-gte|h-lte)\d+/g, "");
 
         // Viewport width
         var w = html.clientWidth;
 
-        // just for debugging purposes
+        // just for debugging purposes, not really useful for anything else
         pushClass("w" + w);
 
         each(conf.width, function(width) {
-            if (w > width) {
-                pushClass("w-gt" + width);
-            }
-            else if (w < width) {
-                pushClass("w-lt" + width);
+            if (w >= width) {
+                pushClass("w-gte" + width);
             }
             else {
-                // this will rarely happen
-                pushClass("w-e" + width);
+                pushClass("w-lte" + width);
+            }
+
+            if (w === width) {
+                pushClass("w-eq" + width);
             }
         });
 
         // Viewport height
         var h = html.clientHeight;
 
-        // just for debugging purposes
+        // just for debugging purposes, not really useful for anything else
         pushClass("h" + h);
 
         each(conf.height, function(height) {
-             if (h > height) {
-                 pushClass("h-gt"  + height);
-             }
-             else if (h < height) {
-                 pushClass("h-lt" + height);
+             if (h >= height) {
+                 pushClass("h-gte"  + height);
              }
              else {
-                 // this will rarely happen
-                 pushClass("h-e" + height);
+                 pushClass("h-lte" + height);
+             }
+
+            if (h === height)  {
+                 pushClass("h-eq" + height);
              }
         });
 
@@ -251,5 +251,5 @@
     screenSize();
     win.onresize = screenSize;
 
-    //api.feature("js", true).feature();
+    api.feature("js", true).feature();
 })(window);

@@ -24,9 +24,8 @@
 </head>
 
 <body>
-	<div id="result">
-        Resize window to start seeing results
-	</div>
+    <h3>Resize window to see values change</h3>
+	<div id="result"></div>
     
     <script>
         function showResult() {
@@ -39,6 +38,8 @@
         else {
             window.attachEvent("onresize", showResult);
         }
+
+        document.getElementById("result").innerHTML = document.documentElement.className;
     </script>
 </body>
 
