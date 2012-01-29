@@ -6,10 +6,10 @@
 
     http://headjs.com
 */
-(function(doc) {
-
+;(function(win, undefined) {
+    var doc  = win.document, nav = win.navigator;
     var html = doc.documentElement,
-         conf = {
+        conf = {
             screens: [320, 480, 640, 768, 1024, 1280, 1440, 1680, 1920],
             section: "-section",
             page: "-page",
@@ -18,10 +18,10 @@
          klass = [];
 
 
-    if (window.head_conf) {
-        for (var key in head_conf) {
-            if (head_conf[key] !== undefined) {
-                conf[key] = head_conf[key];
+    if (win.head_conf) {
+        for (var key in win.head_conf) {
+            if (win.head_conf[key] !== undefined) {
+                conf[key] = win.head_conf[key];
             }
         }
     }
@@ -42,7 +42,7 @@
     }
 
     // API
-    var api = window[conf.head] = function() {
+    var api = win[conf.head] = function() {
         api.ready.apply(null, arguments);
     };
 
@@ -73,17 +73,17 @@
     };
 
     // browser type & version
-    var ua = navigator.userAgent.toLowerCase();
+    var ua = nav.userAgent.toLowerCase();
 
     ua = /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
-        /(opera)(?:.*version)?[ \/]([\w.]+)/.exec( ua ) ||
-        /(msie) ([\w.]+)/.exec( ua ) ||
+         /(opera)(?:.*version)?[ \/]([\w.]+)/.exec( ua ) ||
+         /(msie) ([\w.]+)/.exec( ua ) ||
         !/compatible/.test( ua ) && /(mozilla)(?:.*? rv:([\w.]+))?/.exec( ua ) || [];
 
 
     if (ua[1] == 'msie') {
         ua[1] = 'ie';
-        ua[2] = document.documentMode || ua[2];
+        ua[2] = doc.documentMode || ua[2];
     }
 
     pushClass(ua[1]);
@@ -110,7 +110,7 @@
     
 
     // CSS "router"
-    each(location.pathname.split("/"), function(el, i) {
+    each(win.location.pathname.split("/"), function(el, i) {
 
         if (this.length > 2 && this[i + 1] !== undefined) {
             if (i) { pushClass(this.slice(1, i+1).join("-") + conf.section); }
@@ -131,7 +131,7 @@
     // screen resolution: w-100, lt-480, lt-1024 ...
     function screenSize() {
         // resolution or viewport detection ?
-        var w = !!conf.viewport ? html.clientWidth : (window.outerWidth || html.clientWidth);
+        var w = !!conf.viewport ? html.clientWidth : (win.outerWidth || html.clientWidth);
 
         // remove earlier widths
         html.className = html.className.replace(/ (w|gt|lt)-\d+/g, "");
@@ -153,10 +153,8 @@
     }
 
     screenSize();
-    window.onresize = screenSize;
+    win.onresize = screenSize;
 
     api.feature("js", true).feature();
 
-})(document);
-
-
+})(window);

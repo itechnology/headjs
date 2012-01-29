@@ -6,27 +6,27 @@
 
     http://headjs.com
 */
-(function(doc) {
-
+;(function(win, undefined) {
+    var doc  = win.document, nav = win.navigator;
     var head = doc.documentElement,
         isHeadReady,
         isDomReady,
         domWaiters = [],
-        queue = [],        // waiters for the "head ready" event
-        handlers = {},     // user functions waiting for events
-        scripts = {},      // loadable scripts in different states
-        isAsync = doc.createElement("script").async === true || "MozAppearance" in doc.documentElement.style || window.opera;
+        queue      = [],        // waiters for the "head ready" event
+        handlers   = {},     // user functions waiting for events
+        scripts    = {},      // loadable scripts in different states
+        isAsync    = doc.createElement("script").async === true || "MozAppearance" in doc.documentElement.style || win.opera;
 
 
     /*** public API ***/
-    var head_var = window.head_conf && head_conf.head || "head",
-         api = window[head_var] = (window[head_var] || function() { api.ready.apply(null, arguments); });
+    var head_var = win.head_conf && win.head_conf.head || "head",
+        api      = win[head_var] = (win[head_var] || function() { api.ready.apply(null, arguments); });
 
     // states
-    var PRELOADED = 1,
+    var PRELOADED  = 1,
         PRELOADING = 2,
-        LOADING = 3,
-        LOADED = 4;
+        LOADING    = 3,
+        LOADED     = 4;
 
 
     // Method 1: simply load and let browser take care of ordering
@@ -35,7 +35,7 @@
         api.js = function() {
 
             var args = arguments,
-                 fn = args[args.length -1],
+                 fn  = args[args.length -1],
                  els = {};
 
             if (!isFunc(fn)) { fn = null; }
@@ -316,14 +316,14 @@
     }
 
     // W3C
-    if (window.addEventListener) {
+    if (win.addEventListener) {
         doc.addEventListener("DOMContentLoaded", fireReady, false);
 
         // fallback. this is always called
-        window.addEventListener("load", fireReady, false);
+        win.addEventListener("load", fireReady, false);
 
     // IE
-    } else if (window.attachEvent) {
+    } else if (win.attachEvent) {
 
         // for iframes
         doc.attachEvent("onreadystatechange", function()  {
@@ -337,7 +337,7 @@
         var frameElement = 1;
 
         try {
-            frameElement = window.frameElement;
+            frameElement = win.frameElement;
 
         } catch(e) {}
 
@@ -357,7 +357,7 @@
         }
 
         // fallback
-        window.attachEvent("onload", fireReady);
+        win.attachEvent("onload", fireReady);
     }
 
 
@@ -382,5 +382,4 @@
 
     }, 300);
 
-})(document);
-
+})(window);
