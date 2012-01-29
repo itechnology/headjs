@@ -18,3 +18,11 @@ Changed from head.js v0.96:
     * Inverted feature detection naming convention & made them boolean
       * js-true, font-face-false, border-radius-true
     * Using viewport size detection instead of resolution detection
+
+
+Typo:
+    * On head.js site it is stated that Iphone cannot cache files larger than 15Ko/25Ko
+      * There seems to be a lot of contradictory info out there
+    * But please check this out if you feel concerned
+      * http://www.yuiblog.com/blog/2010/07/12/mobile-browser-cache-limits-revisited/
+      * http://www.yuiblog.com/blog/2010/06/28/mobile-browser-cache-limits/
