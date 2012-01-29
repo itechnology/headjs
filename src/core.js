@@ -148,14 +148,17 @@
     for (var v = start; v <= stop; v++) {
         if (version >= v) {
             pushClass(browser + "-gte" + v);
-        }
 
-        if (version <= v) {
+            if (version === v) {
+                pushClass(browser + "-eq" + v);
+            }
+        }
+        else if (version <= v) {
             pushClass(browser + "-lte" + v);
-        }
 
-        if (version === v) {
-            pushClass(browser + "-eq" + v);
+            if (version === v) {
+                pushClass(browser + "-eq" + v);
+            }
         }
     }
 
@@ -203,14 +206,17 @@
         each(conf.width, function(width) {
             if (w >= width) {
                 pushClass("w-gte" + width);
-            }
 
-            if (w <= width) {
+                if (w === width) {
+                    pushClass("w-eq" + width);
+                }
+            }
+            else if (w <= width) {
                 pushClass("w-lte" + width);
-            }
 
-            if (w === width) {
-                pushClass("w-eq" + width);
+                if (w === width) {
+                    pushClass("w-eq" + width);
+                }
             }
         });
 
@@ -223,14 +229,17 @@
         each(conf.height, function(height) {
              if (h >= height) {
                  pushClass("h-gte"  + height);
-             }
 
-             if (h <= height) {
+                 if (h === height)  {
+                      pushClass("h-eq" + height);
+                  }
+             }
+             else if (h <= height) {
                  pushClass("h-lte" + height);
-             }
 
-            if (h === height)  {
-                 pushClass("h-eq" + height);
+                 if (h === height)  {
+                      pushClass("h-eq" + height);
+                  }
              }
         });
 
