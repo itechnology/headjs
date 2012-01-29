@@ -15,20 +15,49 @@
         font-weight: bold;
     }
 
-    .h-lte600 #result, .w-lte1024 #result {
-        background-color: black;
-        color: white;
+    .sprite {
+        background-image: url(assets/browser_logos-64.png);
+        height: 64px;
+        width: 64px;
+    }
+
+    .ie .sprite {
+        background-position: -286px 0;
+    }
+    .ff .sprite {
+        background-position: -78px 0;
+    }
+    .chrome .sprite {
+        background-position: -6px 0;
+    }
+    .opera .sprite {
+        background-position: -145px 0;
+    }
+    .safari .sprite {
+        background-position: -210px 0;
+    }
+
+    .w-lte1024 #result {
+        background-color: beige;
+    }
+
+    .h-lte600 #result {
+        color: darkgray;
     }
 	</style>
 	
 </head>
 
 <body>
+    <div class="sprite"></div>
     <h3>Resize window to see values change</h3>
     <pre>
-        .h-lte600 #result, .w-lte1024 #result {
-            background-color: black;
-            color: white;
+        .w-lte1024 #result {
+            background-color: beige;
+        }
+
+        .h-lte600 #result {
+            color: darkgray;
         }
     </pre>
 	<div id="result"></div>
