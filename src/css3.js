@@ -31,7 +31,7 @@
          head_var = win.head_conf && win.head_conf.head || "head",
          api      = win[head_var];
 
-
+    win.test = style;
      // Thanks Paul Irish!
     function testProps(props) {
         for (var i in props) {
@@ -44,7 +44,7 @@
 
     function testAll(prop) {
         var camel = prop.charAt(0).toUpperCase() + prop.substr(1),
-             props   = (prop + ' ' + domPrefs.join(camel + ' ') + camel).split(' ');
+            props = (prop + ' ' + domPrefs.join(camel + ' ') + camel).split(' ');
 
         return !!testProps(props);
     }
@@ -53,8 +53,8 @@
 
         gradient: function() {
             var s1 = 'background-image:',
-                 s2 = 'gradient(linear,left top,right bottom,from(#9f9),to(#fff));',
-                 s3 = 'linear-gradient(left top,#eee,#fff);';
+                s2 = 'gradient(linear,left top,right bottom,from(#9f9),to(#fff));',
+                s3 = 'linear-gradient(left top,#eee,#fff);';
 
             style.cssText = (s1 + prefs.join(s2 + s1) + prefs.join(s3 + s1)).slice(0,-s1.length);
             return !!style.backgroundImage;
@@ -66,39 +66,39 @@
         },
 
         opacity: function() {
-            return el.style.opacity === "";
+            return el.style.opacity === '';
         },
 
-        textshadow: function() {
+        text_shadow: function() {
             return style.textShadow === '';
         },
 
-        multiplebgs: function() {
+        multiple_background: function() {
             style.cssText = "background:url(//:),url(//:),red url(//:)";
             return new RegExp("(url\\s*\\(.*?){3}").test(style.background);
         },
 
-        boxshadow: function() {
+        box_shadow: function() {
             return testAll("boxShadow");
         },
 
-        borderimage: function() {
+        border_image: function() {
             return testAll("borderImage");
         },
 
-        borderradius: function() {
+        border_radius: function() {
             return testAll("borderRadius");
         },
 
-        cssreflections: function() {
+        box_reflect: function() {
             return testAll("boxReflect");
         },
 
-        csstransforms: function() {
+        transform: function() {
             return testAll("transform");
         },
 
-        csstransitions: function() {
+        transition: function() {
             return testAll("transition");
         },
 
@@ -107,7 +107,7 @@
          * http://caniuse.com/#search=font
          * The following values are set up for WOFF
          ***********************/
-        fontface: function() {
+        font_face: function() {
             var browser = api.browser.name, version = api.browser.version;
 
             switch(browser) {

@@ -58,13 +58,16 @@
             enabled = enabled.call();
         }
 
-        pushClass(key + '-' + enabled);
+        // css readable friendly
+        var classKey =  key.replace('_', '-');
+
+        pushClass(classKey + '-' + enabled);
         api[key] = !!enabled;
 
         // apply class to HTML element
         if (!queue) {
-            removeClass(key + '-false');
-            removeClass(key + '-true');
+            removeClass(classKey + '-false');
+            removeClass(classKey + '-true');
             api.feature();
         }
 
