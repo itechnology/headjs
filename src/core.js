@@ -218,7 +218,7 @@
         html.className = html.className.replace(/ (w|w-eq|w-gte|w-lte|h|h-eq|h-gte|h-lte)\d+/g, "");
 
         // Viewport width
-        var w = html.clientWidth;
+        var w = win.innerWidth || html.clientWidth;
 
         // just for debugging purposes, not really useful for anything else
         pushClass("w" + w);
@@ -238,7 +238,7 @@
         });
 
         // Viewport height
-        var h = html.clientHeight;
+        var h = win.innerHeight || html.clientHeight;
 
         // just for debugging purposes, not really useful for anything else
         pushClass("h" + h);
