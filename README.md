@@ -9,6 +9,7 @@ Changed from head.js v0.96:
     * Removed conditional comments in css3.js
       * Replaced css3.js browser regex with simpler switch/case
     * Made css3 tests reflect actual css attribute naming convention
+    * Moved features to head.Features namespace
     * Corrected some closure usage
     * Added eq, lte, gte detections for browser/versions & height/width
       * ie, ie-eq6, h-gte468, w-lte1024
@@ -19,7 +20,7 @@ Changed from head.js v0.96:
       * force them to be lowerCase
     * Inverted feature detection naming convention & made them boolean
       * js-true, font-face-false, border-radius-true
-    * Using viewport size detection instead of resolution detection
+    * Detect viewport size instead of resolution
 
 
 Reminder to me:
