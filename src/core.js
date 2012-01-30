@@ -46,8 +46,8 @@
         api.ready.apply(null, arguments);
     };
 
-
-    api.feature = function(key, enabled, queue) {
+    api.Features = {};
+    api.feature  = function(key, enabled, queue) {
 
         // internal: apply all classes
         if (!key) {
@@ -64,7 +64,7 @@
         var cssKey = key.replace(/([A-Z])/g, function($1) { return "-" + $1.toLowerCase(); });
 
         pushClass(cssKey + '-' + enabled);
-        api[key] = !!enabled;
+        api.Features[key] = !!enabled;
 
         // apply class to HTML element
         if (!queue) {
