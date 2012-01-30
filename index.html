@@ -54,13 +54,32 @@
     .h-lte600 #result {
         color: darkgray;
     }
+        
+    header {
+        padding: 5px;
+        background-color: #eeeeee;
+        text-align: center;
+    }
 	</style>
+
+    <!--[if lte IE 9]>
+    <style>
+        /* html 5 shiv styles */
+        article,aside,details,figcaption,figure,footer,header,hgroup,nav,section{display:block}
+        audio{display:none}
+        canvas,video{display:inline-block;*display:inline;*zoom:1}
+        [hidden]{display:none}audio[controls]{display:inline-block;*display:inline;*zoom:1}
+        mark{background:#FF0;color:#000}
+    </style>
+    <![endif]-->
 	
 </head>
 
 <body>
+    <header><h3>Resize window to see changes</h3></header>
+
     <div id="sprite"></div>
-    <h3>Resize window to see values change</h3>
+
     <pre>
         .w-lte1024 #result {
             background-color: beige;
@@ -70,6 +89,7 @@
             color: darkgray;
         }
     </pre>
+
 	<div id="result"></div>
     
     <script>
