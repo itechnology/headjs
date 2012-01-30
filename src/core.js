@@ -35,15 +35,17 @@
     }
 
     function each(arr, fn) {
-        for (var i = 0, arr_length = arr.length; i < arr_length; i++) {
+        for (var i = 0, l = arr.length; i < l; i++) {
             fn.call(arr, arr[i], i);
         }
     }
+
 
     // API
     var api = win[conf.head] = function() {
         api.ready.apply(null, arguments);
     };
+
 
     api.feature = function(key, enabled, queue) {
 
@@ -51,7 +53,7 @@
         if (!key) {
             html.className += ' ' + klass.join( ' ' );
             klass = [];
-            return;
+            return api;
         }
 
         if (Object.prototype.toString.call(enabled) == '[object Function]') {
@@ -74,6 +76,7 @@
         return api;
     };
 
+
     // browser type & version
     var ua = nav.userAgent.toLowerCase();
 
@@ -92,7 +95,7 @@
     var start = 0;
     var stop  = 0;
     switch(browser) {
-        case "msie":
+        case 'msie':
             browser = 'ie';
             version = doc.documentMode || version;
 
@@ -101,53 +104,67 @@
             break;
 
         // Add/remove extra tests here
-        case "chrome":
+        case 'chrome':
             start = 13;
             stop  = 18;
             break;
 
-        case "firefox":
-            browser = "ff";
+        case 'firefox':
+            browser = 'ff';
 
             start = 3;
             stop  = 11;
             break;
 
-        case "ipod":
-        case "ipad":
-        case "iphone":
-            browser = "ios";
+        case 'ipod':
+        case 'ipad':
+        case 'iphone':
+            browser = 'ios';
 
             start = 3;
             stop  = 5;
             break;
 
-        case "android":
+        case 'android':
             start = 2;
             stop  = 4;
             break;
 
-        case "webkit":
-            browser = "safari";
+        case 'webkit':
+            browser = 'safari';
 
             start = 9;
             stop  = 12;
             break;
 
-        case "opera":
+        case 'opera':
             start = 9;
             stop  = 12;
             break;
     }
+    
 
-    // name can be used further on for various tasks, like fontface detection in css3.js
+    // name can be used further on for various tasks, like font-face detection in css3.js
     api.browser = {
         name   : browser,
         version: version
     };
     api.browser[browser] = true;
 
-    pushClass(browser);
+
+    // add supported, not supported classes
+    var supported = ['ie', 'chrome', 'ff', 'ios', 'android', 'safari', 'opera'];
+    each(supported, function(name) {
+        if (name === api.browser.name) {
+             pushClass(name);
+        }
+        else {
+            // useful for targeting all but one specific browser vendor
+            pushClass(name + '-false');            
+        }
+    });    
+
+    
     for (var v = start; v <= stop; v++) {
         if (version >= v) {
             pushClass(browser + "-gte" + v);
@@ -160,21 +177,24 @@
         if (version === v) {
             pushClass(browser + "-eq" + v);
         }
-    }
+    }   
+
 
     // IE lt9 specific
     if (api.browser.ie && version < 9) {
-        // HTML5 support
+        // HTML5 support : you still need to add html5 css initialization styles to your site
+        // See end of source: https://github.com/aFarkas/html5shiv/blob/master/src/html5shiv.js
         each("abbr|article|aside|audio|canvas|details|figcaption|figure|footer|header|hgroup|mark|meter|nav|output|progress|section|summary|time|video".split("|"), function(el) {
             doc.createElement(el);
         });
     }
 
+
     // CSS "router"
     each(win.location.pathname.split("/"), function(el, i) {
         if (this.length > 2 && this[i + 1] !== undefined) {
             if (i) {
-                pushClass(conf.section + this.slice(1, i + 1).join("-"));
+                pushClass(conf.section + this.slice(1, i + 1).join("-").toLowerCase());
             }
         } else {
             // pageId
@@ -182,7 +202,7 @@
             if (index > 0) {
                 id = id.substring(0, index);
             }
-            html.id = conf.page + id;
+            html.id = conf.page + id.toLowerCase();
 
             // on root?
             if (!i) {
@@ -240,8 +260,9 @@
         api.feature();
     }
 
+
     screenSize();
     win.onresize = screenSize;
 
-    api.feature("js", true).feature();
+    api.feature("js", true);
 })(window);
