@@ -60,16 +60,16 @@
             enabled = enabled.call();
         }
 
-        // css readable friendly
-        var classKey =  key.replace('_', '-');
+        // css readable friendly  (use lowerCamelCase on feature names)
+        var cssKey = key.replace(/([A-Z])/g, function($1) { return "-" + $1.toLowerCase(); });
 
-        pushClass(classKey + '-' + enabled);
+        pushClass(cssKey + '-' + enabled);
         api[key] = !!enabled;
 
         // apply class to HTML element
         if (!queue) {
-            removeClass(classKey + '-false');
-            removeClass(classKey + '-true');
+            removeClass(cssKey + '-false');
+            removeClass(cssKey + '-true');
             api.feature();
         }
 
@@ -155,7 +155,7 @@
     // add supported, not supported classes
     var supported = ['ie', 'chrome', 'ff', 'ios', 'android', 'safari', 'opera'];
     each(supported, function(name) {
-        if (name === api.browser.name) {
+        if (name === browser) {
              pushClass(name);
         }
         else {

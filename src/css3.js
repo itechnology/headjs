@@ -69,28 +69,28 @@
             return el.style.opacity === '';
         },
 
-        text_shadow: function() {
+        textShadow: function() {
             return style.textShadow === '';
         },
 
-        multiple_background: function() {
+        multipleBackground: function() {
             style.cssText = "background:url(//:),url(//:),red url(//:)";
             return new RegExp("(url\\s*\\(.*?){3}").test(style.background);
         },
 
-        box_shadow: function() {
+        boxShadow: function() {
             return testAll("boxShadow");
         },
 
-        border_image: function() {
+        borderImage: function() {
             return testAll("borderImage");
         },
 
-        border_radius: function() {
+        borderRadius: function() {
             return testAll("borderRadius");
         },
 
-        box_reflect: function() {
+        boxReflect: function() {
             return testAll("boxReflect");
         },
 
@@ -107,7 +107,7 @@
          * http://caniuse.com/#search=font
          * The following values are set up for WOFF
          ***********************/
-        font_face: function() {
+        fontFace: function() {
             var browser = api.browser.name, version = api.browser.version;
 
             switch(browser) {
