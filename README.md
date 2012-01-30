@@ -12,9 +12,11 @@ Changed from head.js v0.96:
     * Corrected some closure usage
     * Added eq, lte, gte detections for browser/versions & height/width
       * ie, ie-eq6, h-gte468, w-lte1024
+    * Added browser-false classes
     * Restricted html5 shiv to ie < 9
     * Inverted css router naming convention
       * page-name, section-name
+      * force them to be lowerCase
     * Inverted feature detection naming convention & made them boolean
       * js-true, font-face-false, border-radius-true
     * Using viewport size detection instead of resolution detection
