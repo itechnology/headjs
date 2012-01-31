@@ -10,6 +10,8 @@ Changed from head.js v0.96:
       * Replaced css3.js browser regex with simpler switch/case
     * Made css3 tests reflect actual css attribute naming convention
     * Moved features to head.Features namespace
+    * Moved browser info to Client namespace
+      * Added screen information to client namespace
     * Corrected some closure usage
     * Added eq, lte, gte detections for browser/versions & height/width
       * ie, ie-eq6, h-gte468, w-lte1024

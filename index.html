@@ -2,7 +2,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <!--[if lt IE 9]><link rel="stylesheet" href="assets/html5.css" /><![endif]-->
     <script src="src/core.js"></script>
     <script src="src/css3.js"></script>
 	
@@ -63,18 +63,6 @@
         text-align: center;
     }
 	</style>
-
-    <!--[if lte IE 9]>
-    <style>
-        /* html 5 shiv styles */
-        article,aside,details,figcaption,figure,footer,header,hgroup,nav,section{display:block}
-        audio{display:none}
-        canvas,video{display:inline-block;*display:inline;*zoom:1}
-        [hidden]{display:none}audio[controls]{display:inline-block;*display:inline;*zoom:1}
-        mark{background:#FF0;color:#000}
-    </style>
-    <![endif]-->
-	
 </head>
 
 <body>
@@ -107,7 +95,7 @@
         }
 
         document.getElementById("result").innerHTML = document.documentElement.className;
-        document.getElementById("sprite").innerHTML = head.browser.version;
+        document.getElementById("sprite").innerHTML = head.Client.browser.version;
     </script>
 </body>
 

@@ -145,11 +145,12 @@
     
 
     // name can be used further on for various tasks, like font-face detection in css3.js
-    api.browser = {
+    api.Client = {};
+    api.Client.browser = {
         name   : browser,
         version: version
     };
-    api.browser[browser] = true;
+    api.Client.browser[browser] = true;
 
 
     // add supported, not supported classes
@@ -181,9 +182,9 @@
 
 
     // IE lt9 specific
-    if (api.browser.ie && version < 9) {
+    if (browser === "ie" && version < 9) {
         // HTML5 support : you still need to add html5 css initialization styles to your site
-        // See end of source: https://github.com/aFarkas/html5shiv/blob/master/src/html5shiv.js
+        // See: assets/html5.css
         each("abbr|article|aside|audio|canvas|details|figcaption|figure|footer|header|hgroup|mark|meter|nav|output|progress|section|summary|time|video".split("|"), function(el) {
             doc.createElement(el);
         });
@@ -212,47 +213,61 @@
     });
 
 
+    // basic screen info
+    api.Client.screen = {
+        height: win.screen.height,
+        width : win.screen.width
+    };
+
     // viewport resolutions: w-eq320, w-lte480, w-lte1024 / h-eq600, h-lte768, h-lte1024
     function screenSize() {
         // remove earlier sizes
         html.className = html.className.replace(/ (w|w-eq|w-gte|w-lte|h|h-eq|h-gte|h-lte)\d+/g, "");
 
         // Viewport width
-        var w = win.innerWidth || html.clientWidth;
+        var iw = win.innerWidth || html.clientWidth;
+        var ow = win.outerWidth || win.screen.width;
 
-        // just for debugging purposes, not really useful for anything else
-        pushClass("w" + w);
+        api.Client.screen['innerWidth'] = iw;
+        api.Client.screen['outerWidth'] = ow;
+
+        // for debugging purposes, not really useful for anything else
+        pushClass("w" + iw);
 
         each(conf.width, function(width) {
-            if (w >= width) {
+            if (iw >= width) {
                 pushClass("w-gte" + width);
             }
 
-            if (w <= width) {
+            if (iw <= width) {
                 pushClass("w-lte" + width);
             }
 
-            if (w === width) {
+            if (iw === width) {
                 pushClass("w-eq" + width);
             }
         });
 
         // Viewport height
-        var h = win.innerHeight || html.clientHeight;
+        var ih = win.innerHeight || html.clientHeight;
+        var oh = win.outerHeight || win.screen.height;
 
-        // just for debugging purposes, not really useful for anything else
-        pushClass("h" + h);
+        api.Client.screen['innerHeight'] = ih;
+        api.Client.screen['outerHeight'] = oh;
+
+        // for debugging purposes, not really useful for anything else
+        pushClass("h" + ih);
 
         each(conf.height, function(height) {
-             if (h >= height) {
+             if (ih >= height) {
                  pushClass("h-gte"  + height);
              }
 
-            if (h <= height) {
+            if (ih <= height) {
                  pushClass("h-lte" + height);
              }
 
-            if (h === height)  {
+            if (ih === height)  {
                  pushClass("h-eq" + height);
              }
         });
