@@ -108,7 +108,7 @@
          * The following values are set up for WOFF
          ***********************/
         fontFace: function() {
-            var browser = api.Client.browser.name, version = api.Client.browser.version;
+            var browser = api.browser.name, version = api.browser.version;
 
             switch(browser) {
                 case "ie":
