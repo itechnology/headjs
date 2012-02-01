@@ -9,13 +9,17 @@ Changed from head.js v0.96:
     * Removed conditional comments in css3.js
       * Replaced css3.js browser regex with simpler switch/case
     * Made css3 tests reflect actual css attribute naming convention
-    * Moved features to head.Features namespace
-    * Moved browser info to Client namespace
-      * Added screen information to client namespace
+    * Moved features to head.features namespace
+    * Added head.screen namespace
+      * added screen.inner/outerWidth
+      * added screen.inner/outerHeight
+      * added screen.height/width
     * Corrected some closure usage
     * Added eq, lte, gte detections for browser/versions & height/width
       * ie, ie-eq6, h-gte468, w-lte1024
     * Added browser-false classes
+      * added desktop/mobile feature detection
+      * added landscape/portrait feature detection
     * Restricted html5 shiv to ie < 9
     * Inverted css router naming convention
       * page-name, section-name
