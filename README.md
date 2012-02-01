@@ -12,6 +12,8 @@ Changed from head.js v0.96:
     * Removed conditional comments in css3.js
       * Replaced css3.js browser regex with simpler switch/case
     * Made css3 tests reflect actual css attribute naming convention
+      * js  features lowerCamelCase
+      * css features lowercase dashed
     * Moved features to head.features namespace
     * Added head.screen namespace
       * added screen.inner/outerWidth
