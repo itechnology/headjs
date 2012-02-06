@@ -7,26 +7,28 @@
     http://headjs.com
 */
 ;(function(win, undefined) {
-    var doc  = win.document, nav = win.navigator;
-    var head = doc.documentElement,
+    "use strict";
+
+    var doc  = win.document,
+        nav  = win.navigator,
+        head = doc.documentElement,
         isHeadReady,
         isDomReady,
         domWaiters = [],
         queue      = [],        // waiters for the "head ready" event
         handlers   = {},     // user functions waiting for events
         scripts    = {},      // loadable scripts in different states
-        isAsync    = doc.createElement("script").async === true || "MozAppearance" in doc.documentElement.style || win.opera;
-
+        isAsync    = doc.createElement("script").async === true || "MozAppearance" in doc.documentElement.style || win.opera,
 
     /*** public API ***/
-    var head_var = win.head_conf && win.head_conf.head || "head",
-        api      = win[head_var] = (win[head_var] || function() { api.ready.apply(null, arguments); });
+    head_var = win.head_conf && win.head_conf.head || "head",
+    api      = win[head_var] = (win[head_var] || function() { api.ready.apply(null, arguments); }),
 
     // states
-    var PRELOADED  = 1,
-        PRELOADING = 2,
-        LOADING    = 3,
-        LOADED     = 4;
+    PRELOADED  = 1,
+    PRELOADING = 2,
+    LOADING    = 3,
+    LOADED     = 4;
 
 
     // Method 1: simply load and let browser take care of ordering

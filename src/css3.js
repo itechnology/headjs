@@ -7,7 +7,10 @@
     https://github.com/itechnology/headjs
 */
 ;(function(win, undefined) {
-    var doc  = win.document, nav = win.navigator;
+    "use strict";
+
+    var doc = win.document,
+        nav = win.navigator,
 
     /*
         To add a new test:
@@ -23,7 +26,7 @@
     */
 
     /* CSS modernizer */
-    var el = doc.createElement("i"),
+         el       = doc.createElement("i"),
          style    = el.style,
          prefs    = ' -o- -moz- -ms- -webkit- -khtml- '.split(' '),
          domPrefs = 'Webkit Moz O ms Khtml'.split(' '),

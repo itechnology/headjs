@@ -7,15 +7,19 @@
     https://github.com/itechnology/headjs
 */
 ;(function(win, undefined) {
-    var doc  = win.document, nav = win.navigator;
-    var html = doc.documentElement, conf = {
+    "use strict";
+
+    var doc   = win.document,
+        nav   = win.navigator,
+        html  = doc.documentElement,
+        klass = [],
+        conf  = {
             width  : [320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
             height : [240, 320, 480, 600, 768, 800, 900, 1080],
             section: "section-",
             page   : "page-",
             head   : "head"
-         },
-         klass = [];
+         };
 
     if (win.head_conf) {
         for (var key in win.head_conf) {
