@@ -22,9 +22,9 @@
          };
 
     if (win.head_conf) {
-        for (var key in win.head_conf) {
-            if (win.head_conf[key] !== undefined) {
-                conf[key] = win.head_conf[key];
+        for (var item in win.head_conf) {
+            if (win.head_conf[item] !== undefined) {
+                conf[item] = win.head_conf[item];
             }
         }
     }
@@ -50,7 +50,7 @@
         api.ready.apply(null, arguments);
     };
 
-    api.Features = {};
+    api.features = {};
     api.feature  = function(key, enabled, queue) {
 
         // internal: apply all classes
@@ -68,7 +68,7 @@
         var cssKey = key.replace(/([A-Z])/g, function($1) { return "-" + $1.toLowerCase(); });
 
         pushClass(cssKey + '-' + enabled);
-        api.Features[key] = !!enabled;
+        api.features[key] = !!enabled;
 
         // apply class to HTML element
         if (!queue) {
@@ -80,9 +80,16 @@
         return api;
     };
 
+    api.feature("js", true, true);
+
 
     // browser type & version
-    var ua = nav.userAgent.toLowerCase();
+    var ua     = nav.userAgent.toLowerCase();
+    var mobile = /mobile/.test(ua);
+    
+    // useful for enabling/disabling feature (we can consider a desktop navigator to have more cpu/gpu power)
+    api.feature("mobile" ,  mobile, true);
+    api.feature("desktop", !mobile, true);
 
     // http://www.zytrax.com/tech/web/browser_ids.htm
     // http://www.zytrax.com/tech/web/mobile_ids.html
@@ -149,12 +156,11 @@
     
 
     // name can be used further on for various tasks, like font-face detection in css3.js
-    api.Client = {};
-    api.Client.browser = {
+    api.browser = {
         name   : browser,
         version: version
     };
-    api.Client.browser[browser] = true;
+    api.browser[browser] = true;
 
 
     // add supported, not supported classes
@@ -218,10 +224,11 @@
 
 
     // basic screen info
-    api.Client.screen = {
+    api.screen = {        
         height: win.screen.height,
         width : win.screen.width
     };
+
 
     // viewport resolutions: w-eq320, w-lte480, w-lte1024 / h-eq600, h-lte768, h-lte1024
     function screenSize() {
@@ -232,8 +239,8 @@
         var iw = win.innerWidth || html.clientWidth;
         var ow = win.outerWidth || win.screen.width;
 
-        api.Client.screen['innerWidth'] = iw;
-        api.Client.screen['outerWidth'] = ow;
+        api.screen['innerWidth'] = iw;
+        api.screen['outerWidth'] = ow;
 
         // for debugging purposes, not really useful for anything else
         pushClass("w" + iw);
@@ -252,12 +259,13 @@
             }
         });
 
+
         // Viewport height
         var ih = win.innerHeight || html.clientHeight;
         var oh = win.outerHeight || win.screen.height;
 
-        api.Client.screen['innerHeight'] = ih;
-        api.Client.screen['outerHeight'] = oh;
+        api.screen['innerHeight'] = ih;
+        api.screen['outerHeight'] = oh;
 
         // for debugging purposes, not really useful for anything else
         pushClass("h" + ih);
@@ -276,12 +284,13 @@
              }
         });
 
-        api.feature();
+
+        // no need for onChange event to detect this
+        api.feature("portrait" , ih > iw);
+        api.feature("landscape", ih < iw);
     }
 
 
     screenSize();
     win.onresize = screenSize;
-
-    api.feature("js", true);
 })(window);

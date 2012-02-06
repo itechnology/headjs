@@ -2,3 +2,4 @@
   * add tests to autonomous subfolder  so we can have a lib of tests to choose from instead of having them all in one big file
 
 * Add simple Flash/SilverLight detection
+  * code is ready...

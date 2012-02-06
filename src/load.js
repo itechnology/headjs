@@ -114,13 +114,13 @@
         if (isFunc(key)) {
             fn = key;
             key = "ALL";
-        }    
+        }
 
         // make sure arguments are sane
         if (typeof key != 'string' || !isFunc(fn)) { return api; }
 
         var script = scripts[key];
-        
+
         // script already loaded --> execute and return
         if (script && script.state == LOADED || key == 'ALL' && allLoaded() && isDomReady) {
             one(fn);
@@ -150,8 +150,8 @@
 
 
     /*** private functions ***/
-    
-    
+
+
     // call function once
     function one(fn) {
         if (fn._done) { return; }
@@ -212,12 +212,12 @@
         els = els || scripts;
 
         var loaded;
-        
+
         for (var name in els) {
             if (els.hasOwnProperty(name) && els[name].state != LOADED) { return false; }
             loaded = true;
         }
-        
+
         return loaded;
     }
 
