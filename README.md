@@ -5,17 +5,23 @@ Modified version of head.js [http://headjs.com](http://headjs.com)
 
 Changed from head.js v0.96:
 
-    * Added/changed some browser detections
+    * Added/changed some browser version detections
+      * added browser-false classes      
+      * added desktop/mobile feature detection
+      * added landscape/portrait feature detection
     * Removed conditional comments in css3.js
       * Replaced css3.js browser regex with simpler switch/case
     * Made css3 tests reflect actual css attribute naming convention
-    * Moved features to head.Features namespace
-    * Moved browser info to Client namespace
-      * Added screen information to client namespace
+      * js  features lowerCamelCase
+      * css features lowercase dashed
+    * Moved features to head.features namespace
+    * Added head.screen namespace
+      * added screen.inner/outerWidth
+      * added screen.inner/outerHeight
+      * added screen.height/width
     * Corrected some closure usage
     * Added eq, lte, gte detections for browser/versions & height/width
       * ie, ie-eq6, h-gte468, w-lte1024
-    * Added browser-false classes
     * Restricted html5 shiv to ie < 9
     * Inverted css router naming convention
       * page-name, section-name
