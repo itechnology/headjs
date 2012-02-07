@@ -84,8 +84,8 @@
 
 
     // browser type & version
-    var ua     = nav.userAgent.toLowerCase();
-    var mobile = /mobile/.test(ua);
+    var ua     = nav.userAgent.toLowerCase(),
+        mobile = /mobile/.test(ua);
     
     // useful for enabling/disabling feature (we can consider a desktop navigator to have more cpu/gpu power)
     api.feature("mobile" ,  mobile, true);
@@ -100,11 +100,11 @@
          /(msie) ([\w.]+)/.exec( ua )                               || [];
 
 
-    var browser = ua[1];
-    var version = parseFloat(ua[2]);
+    var browser = ua[1],
+        version = parseFloat(ua[2]),
 
-    var start = 0;
-    var stop  = 0;
+    start = 0,
+    stop  = 0;
     switch(browser) {
         case 'msie':
             browser = 'ie';
@@ -236,8 +236,8 @@
         html.className = html.className.replace(/ (w|w-eq|w-gte|w-lte|h|h-eq|h-gte|h-lte)\d+/g, "");
 
         // Viewport width
-        var iw = win.innerWidth || html.clientWidth;
-        var ow = win.outerWidth || win.screen.width;
+        var iw = win.innerWidth || html.clientWidth,
+            ow = win.outerWidth || win.screen.width;
 
         api.screen['innerWidth'] = iw;
         api.screen['outerWidth'] = ow;
@@ -261,8 +261,8 @@
 
 
         // Viewport height
-        var ih = win.innerHeight || html.clientHeight;
-        var oh = win.outerHeight || win.screen.height;
+        var ih = win.innerHeight || html.clientHeight,
+            oh = win.outerHeight || win.screen.height;
 
         api.screen['innerHeight'] = ih;
         api.screen['outerHeight'] = oh;
@@ -291,6 +291,18 @@
     }
 
 
-    screenSize();
-    win.onresize = screenSize;
+    // Throttle navigators from triggering to many resize events
+    var resizeId = 0;    
+    function onResize() {
+        clearTimeout(resizeId);
+        resizeId = setTimeout(screenSize, 100);        
+    }
+    
+    // Manualy attach, as to not overwrite existing handler
+    if (win.addEventListener) {
+        win.addEventListener("resize", onResize, false);
+
+    } else {
+        win.attachEvent("onresize", onResize);
+    }
 })(window);
