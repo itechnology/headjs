@@ -6,15 +6,16 @@
 
     https://github.com/itechnology/headjs
 */
-;(function(win, undefined) {
+; (function(win, undefined) {
     "use strict";
-
+    
     var doc   = win.document,
         nav   = win.navigator,
+        loc   = win.location,
         html  = doc.documentElement,
-        klass = [],
+        klass = [],        
         conf  = {
-            width  : [320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
+            width  : [240, 320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
             height : [240, 320, 480, 600, 768, 800, 900, 1080],
             section: "section-",
             page   : "page-",
@@ -28,7 +29,7 @@
             }
         }
     }
-
+    
     function pushClass(name) {
         klass[klass.length] = name;
     }
@@ -60,7 +61,7 @@
             return api;
         }
 
-        if (Object.prototype.toString.call(enabled) == '[object Function]') {
+        if (Object.prototype.toString.call(enabled) === '[object Function]') {
             enabled = enabled.call();
         }
 
@@ -82,29 +83,29 @@
 
     api.feature("js", true, true);
 
-
+    
     // browser type & version
     var ua     = nav.userAgent.toLowerCase(),
         mobile = /mobile/.test(ua);
     
-    // useful for enabling/disabling feature (we can consider a desktop navigator to have more cpu/gpu power)
+    // useful for enabling/disabling feature (we can consider a desktop navigator to have more cpu/gpu power)        
     api.feature("mobile" ,  mobile, true);
     api.feature("desktop", !mobile, true);
-
+    
     // http://www.zytrax.com/tech/web/browser_ids.htm
     // http://www.zytrax.com/tech/web/mobile_ids.html
-    ua = /(chrome|firefox)[ \/]([\w.]+)/.exec( ua )                 || // Chrome & Firefox
-         /(iphone|ipad|ipod)(?:.*version)?[ \/]([\w.]+)/.exec( ua ) || // Mobile IOS
-         /(android)(?:.*version)?[ \/]([\w.]+)/.exec( ua )          || // Mobile Webkit
-         /(webkit|opera)(?:.*version)?[ \/]([\w.]+)/.exec( ua )     || // Safari & Opera
-         /(msie) ([\w.]+)/.exec( ua )                               || [];
+    ua = /(chrome|firefox)[ \/]([\w.]+)/.exec(ua)                 || // Chrome & Firefox
+         /(iphone|ipad|ipod)(?:.*version)?[ \/]([\w.]+)/.exec(ua) || // Mobile IOS
+         /(android)(?:.*version)?[ \/]([\w.]+)/.exec(ua)          || // Mobile Webkit
+         /(webkit|opera)(?:.*version)?[ \/]([\w.]+)/.exec(ua)     || // Safari & Opera
+         /(msie) ([\w.]+)/.exec(ua)                               || [];
 
 
     var browser = ua[1],
         version = parseFloat(ua[2]),
 
     start = 0,
-    stop  = 0;
+    stop  = 0;    
     switch(browser) {
         case 'msie':
             browser = 'ie';
@@ -158,7 +159,7 @@
     // name can be used further on for various tasks, like font-face detection in css3.js
     api.browser = {
         name   : browser,
-        version: version
+        version: version        
     };
     api.browser[browser] = true;
 
@@ -202,7 +203,7 @@
 
 
     // CSS "router"
-    each(win.location.pathname.split("/"), function(el, i) {
+    each(loc.pathname.split("/"), function(el, i) {
         if (this.length > 2 && this[i + 1] !== undefined) {
             if (i) {
                 pushClass(conf.section + this.slice(1, i + 1).join("-").toLowerCase());
@@ -228,7 +229,7 @@
         height: win.screen.height,
         width : win.screen.width
     };
-
+    
 
     // viewport resolutions: w-eq320, w-lte480, w-lte1024 / h-eq600, h-lte768, h-lte1024
     function screenSize() {
@@ -258,7 +259,7 @@
                 pushClass("w-eq" + width);
             }
         });
-
+        
 
         // Viewport height
         var ih = win.innerHeight || html.clientHeight,
@@ -282,16 +283,16 @@
             if (ih === height)  {
                  pushClass("h-eq" + height);
              }
-        });
-
+        });        
 
         // no need for onChange event to detect this
-        api.feature("portrait" , ih > iw);
-        api.feature("landscape", ih < iw);
+        api.feature("portrait" , (ih > iw));
+        api.feature("landscape", (ih < iw));
     }
-
-
-    // Throttle navigators from triggering to many resize events
+        
+    screenSize();
+    
+    // Throttle navigators from triggering too many resize events
     var resizeId = 0;    
     function onResize() {
         clearTimeout(resizeId);
@@ -304,5 +305,5 @@
 
     } else {
         win.attachEvent("onresize", onResize);
-    }
+    }    
 })(window);
