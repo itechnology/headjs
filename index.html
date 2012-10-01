@@ -24,7 +24,7 @@
         padding: 5px;
     }
 
-    #sprite {
+    .sprite {
         background-image: url(assets/browser_logos-64.png);
         height: 64px;
         width: 64px;
@@ -32,20 +32,28 @@
         color: black;
         font-weight: bold;
     }
+    
+    .sprite span {
+	background-color: white;
+	border-radius: 15px;
+	-webkit-border-radius: 15px;
+	border: 1px solid black;
+	padding: 2px;
+    }    
 
-    .ie #sprite {
+    .ie .sprite {
         background-position: -286px -2px;
     }
-    .ff #sprite {
+    .ff .sprite {
         background-position: -78px -2px;
     }
-    .chrome #sprite {
+    .chrome .sprite {
         background-position: -6px -2px;
     }
-    .opera #sprite {
+    .opera .sprite {
         background-position: -145px -2px;
     }
-    .safari #sprite {
+    .safari .sprite {
         background-position: -210px -2px;
     }
 
@@ -68,7 +76,7 @@
 <body>
     <header><h3>Resize window to see changes</h3></header>
 
-    <div id="sprite"></div>
+    <div class="sprite"><span id="version"></span></div>
 
     <pre>
         .w-lte1024 #result {
@@ -94,8 +102,8 @@
             window.attachEvent("onresize", showResult);
         }
 
-        document.getElementById("result").innerHTML = document.documentElement.className;
-        document.getElementById("sprite").innerHTML = head.browser.version;
+        document.getElementById("result").innerHTML  = document.documentElement.className;
+        document.getElementById("version").innerHTML = head.browser.version;
     </script>
 </body>
 
