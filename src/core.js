@@ -16,7 +16,7 @@
         klass = [],        
         conf  = {
             width  : [240, 320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
-            height : [240, 320, 480, 600, 768, 800, 900, 1080],
+            height : [240, 320, 480, 600, 768, 800, 900, 1050, 1080],
             section: "section-",
             page   : "page-",
             head   : "head"
@@ -86,11 +86,12 @@
     
     // browser type & version
     var ua     = nav.userAgent.toLowerCase(),
-        mobile = /mobile/.test(ua);
+        mobile = /mobile|midp/.test(ua);
     
     // useful for enabling/disabling feature (we can consider a desktop navigator to have more cpu/gpu power)        
     api.feature("mobile" ,  mobile, true);
     api.feature("desktop", !mobile, true);
+    api.feature("touch"  , 'ontouchstart' in win, true);
     
     // http://www.zytrax.com/tech/web/browser_ids.htm
     // http://www.zytrax.com/tech/web/mobile_ids.html
@@ -117,15 +118,15 @@
 
         // Add/remove extra tests here
         case 'chrome':
-            start = 13;
-            stop  = 18;
+            start = 8;
+            stop  = 25;
             break;
 
         case 'firefox':
             browser = 'ff';
 
             start = 3;
-            stop  = 11;
+            stop  = 17;
             break;
 
         case 'ipod':
@@ -134,7 +135,7 @@
             browser = 'ios';
 
             start = 3;
-            stop  = 5;
+            stop  = 6;
             break;
 
         case 'android':
@@ -169,25 +170,29 @@
     each(supported, function(name) {
         if (name === browser) {
              pushClass(name);
+            pushClass(name + '-true');
         }
         else {
-            // useful for targeting all but one specific browser vendor
             pushClass(name + '-false');            
         }
     });    
 
     
     for (var v = start; v <= stop; v++) {
-        if (version >= v) {
+        if (version > v) {
+            pushClass(browser + "-gt"  + v);
             pushClass(browser + "-gte" + v);
         }
 
-        if (version <= v) {
+        else if (version < v) {
+            pushClass(browser + "-lt"  + v);
             pushClass(browser + "-lte" + v);
         }
 
-        if (version === v) {
-            pushClass(browser + "-eq" + v);
+        else if (version === v) {
+            pushClass(browser + "-lte" + v);
+            pushClass(browser + "-eq"  + v);
+            pushClass(browser + "-gte" + v);
         }
     }   
 
@@ -234,7 +239,7 @@
     // viewport resolutions: w-eq320, w-lte480, w-lte1024 / h-eq600, h-lte768, h-lte1024
     function screenSize() {
         // remove earlier sizes
-        html.className = html.className.replace(/ (w|w-eq|w-gte|w-lte|h|h-eq|h-gte|h-lte)\d+/g, "");
+        html.className = html.className.replace(/ (w|w-eq|w-gt|w-gte|w-lt|w-lte|h|h-eq|h-gt|h-gte|h-lt|h-lte)\d+/g, "");
 
         // Viewport width
         var iw = win.innerWidth || html.clientWidth,
@@ -247,16 +252,20 @@
         pushClass("w" + iw);
 
         each(conf.width, function(width) {
-            if (iw >= width) {
+            if (iw > width) {
+                pushClass("w-gt"  + width);
                 pushClass("w-gte" + width);
             }
 
-            if (iw <= width) {
+            else if (iw < width) {
+                pushClass("w-lt"  + width);
                 pushClass("w-lte" + width);
             }
 
-            if (iw === width) {
-                pushClass("w-eq" + width);
+            else if (iw === width) {
+                pushClass("w-lte" + width);
+                pushClass("w-eq"  + width);
+                pushClass("w-gte" + width);
             }
         });
         
@@ -272,16 +281,20 @@
         pushClass("h" + ih);
 
         each(conf.height, function(height) {
-             if (ih >= height) {
-                 pushClass("h-gte"  + height);
+             if (ih > height) {
+                 pushClass("h-gt"  + height);
+                 pushClass("h-gte" + height);
              }
 
-            if (ih <= height) {
+            else if (ih < height) {
+                pushClass("h-lt"  + height);
+                pushClass("h-lte" + height);
+             }
+
+            else if (ih === height) {
                  pushClass("h-lte" + height);
-             }
-
-            if (ih === height)  {
-                 pushClass("h-eq" + height);
+                 pushClass("h-eq"  + height);
+                 pushClass("h-gte" + height);
              }
         });        
 
@@ -295,8 +308,8 @@
     // Throttle navigators from triggering too many resize events
     var resizeId = 0;    
     function onResize() {
-        clearTimeout(resizeId);
-        resizeId = setTimeout(screenSize, 100);        
+        win.clearTimeout(resizeId);
+        resizeId = win.setTimeout(screenSize, 100);        
     }
     
     // Manualy attach, as to not overwrite existing handler
