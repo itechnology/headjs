@@ -76,14 +76,14 @@
             removeClass(cssKey + '-false');
             removeClass(cssKey + '-true');
             api.feature();
-        }
+    }
 
         return api;
     };
 
-    api.feature("js", true, true);
+    // no queue here, so we can remove any eventual pre-existing no-js class
+    api.feature("js", true);
 
-    
     // browser type & version
     var ua     = nav.userAgent.toLowerCase(),
         mobile = /mobile|midp/.test(ua);
@@ -104,9 +104,9 @@
 
     var browser = ua[1],
         version = parseFloat(ua[2]),
-
-    start = 0,
-    stop  = 0;    
+        start   = 0,
+        stop    = 0;    
+    
     switch(browser) {
         case 'msie':
             browser = 'ie';
@@ -119,7 +119,7 @@
         // Add/remove extra tests here
         case 'chrome':
             start = 8;
-            stop  = 25;
+            stop  = 22;
             break;
 
         case 'firefox':
@@ -239,7 +239,7 @@
     // viewport resolutions: w-eq320, w-lte480, w-lte1024 / h-eq600, h-lte768, h-lte1024
     function screenSize() {
         // remove earlier sizes
-        html.className = html.className.replace(/ (w|w-eq|w-gt|w-gte|w-lt|w-lte|h|h-eq|h-gt|h-gte|h-lt|h-lte)\d+/g, "");
+        html.className = html.className.replace(/ (w|w-eq|w-gt|w-gte|w-lt|w-lte|h|h-eq|h-gt|h-gte|h-lt|h-lte|portrait|no-portrait|landscape|no-landscape)\d+/g, "");
 
         // Viewport width
         var iw = win.innerWidth || html.clientWidth,
@@ -312,7 +312,7 @@
         resizeId = win.setTimeout(screenSize, 100);        
     }
     
-    // Manualy attach, as to not overwrite existing handler
+    // Manually attach, as to not overwrite existing handler
     if (win.addEventListener) {
         win.addEventListener("resize", onResize, false);
 
