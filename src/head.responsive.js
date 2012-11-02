@@ -119,7 +119,7 @@
         // Add/remove extra tests here
         case 'chrome':
             start = 8;
-            stop  = 22;
+            stop  = 24;
             break;
 
         case 'firefox':

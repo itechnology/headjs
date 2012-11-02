@@ -31,10 +31,9 @@
          prefs    = ' -o- -moz- -ms- -webkit- -khtml- '.split(' '),
          domPrefs = 'Webkit Moz O ms Khtml'.split(' '),
 
-         head_var = win.head_conf && win.head_conf.head || "head",
-         api      = win[head_var];
+         headVar = win.head_conf && win.head_conf.head || "head",
+         api     = win[headVar];
 
-    win.test = style;
      // Thanks Paul Irish!
     function testProps(props) {
         for (var i in props) {
@@ -42,6 +41,8 @@
                 return true;
             }
         }
+
+        return false;
     }
 
 
@@ -138,8 +139,6 @@
                 default:
                     return false;
             }
-
-            return false;
         }
     };
 
