@@ -5,7 +5,7 @@
 // or "localhost"
 var s = "http://localhost:62875";
 
-module('Responsive.js');
+module('head.responsive.js');
 
 test("Detections", function () {
     expect(8);

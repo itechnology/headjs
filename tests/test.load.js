@@ -1,29 +1,30 @@
-module('Load.js');
+module('head.load.js');
 
-function getStyle(ele, styleProp)
-{
-    var y;
-	if (ele.currentStyle)
-	    y = ele.currentStyle[styleProp];
-	else if (window.getComputedStyle)
-	    y = document.defaultView.getComputedStyle(ele, null).getPropertyValue(styleProp);
-	return y;
+function getStyle(ele, styleProp) {
+    var y = "";
+
+    if (ele.currentStyle) {
+        y = ele.currentStyle[styleProp];
+    }
+    else if (window.getComputedStyle) {
+        y = document.defaultView.getComputedStyle(ele, null).getPropertyValue(styleProp);
+    }
+    
+    return y;
 }
 
-//asyncTest("CSS: load css file", function () {
-//    expect(1);
-//    var test = 0;
-//    head.ready("test.css", function () {
-//        // having a hard time testing this otherwise....
-//        ok(test = 1, "Ok, triggered on filename: head.ready('html5.css')");
+asyncTest("CSS: load css file", function () {
+    expect(1);
+  
+    head.ready("test.css", function () {     
+        var result = getStyle(document.getElementsByTagName("body")[0], "background-repeat");
+        ok(result === "repeat-x", "Ok, triggered on filename: head.ready('html5.css')");
 
-//        start();
-//    });
+        start();
+    });
 
-//    head.js("test.css", function() {
-//        test = 1;
-//    });
-//});
+    head.js("assets/test.css");
+});
 
 asyncTest("jQuery & MooTools: trigger via callback()", function() {
     expect(2);

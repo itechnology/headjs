@@ -1,7 +1,7 @@
 /**
  * Test Feature Detection
  */
-module('Features.js');
+module('head.features.js');
  
 var classes = " " + document.documentElement.className;
 

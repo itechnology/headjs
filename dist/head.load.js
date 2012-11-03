@@ -2,7 +2,7 @@
     Head JS     The only script in your <HEAD>
     Copyright   Tero Piirainen (tipiirai)
     License     MIT / http://bit.ly/mit-license
-    Version     0.97a
+    Version     0.98
 
     http://headjs.com
 */
@@ -28,13 +28,19 @@
 
     // Method 1: simply load and let browser take care of ordering
     if (isAsync) {
-        api.js = function() {
-
+        api.load = function () {
+            ///<summary>
+            /// INFO: use cases
+            ///    head.load("http://domain.com/file.js", callBack)
+            ///    head.load("http://domain.com/file.js","http://domain.com/file.js", callBack)
+            ///    head.load({ label1: "http://domain.com/file.js" }, { label2: "http://domain.com/file.js" }, callBack)
+            ///</summary> 
+            
             var args = arguments,
                  fn  = args[args.length - 1],
                  els = {};
 
-            if (!isFunc(fn)) {
+            if (!isFunction(fn)) {
                 fn = null;
             }
 
@@ -58,7 +64,14 @@
 
     // Method 2: preload with text/cache hack
     } else {
-        api.js = function() {
+        api.load = function () {
+            ///<summary>
+            /// INFO: use cases
+            ///    head.load("http://domain.com/file.js")
+            ///    head.load("http://domain.com/file.js", callBack)
+            ///    head.load("http://domain.com/file.js","http://domain.com/file.js", callBack)
+            ///    head.load({ label1: "http://domain.com/file.js" }, { label2: "http://domain.com/file.js" }, callBack)
+            ///</summary>           
 
             var args = arguments,
                 rest = [].slice.call(args, 1),
@@ -67,7 +80,7 @@
             // wait for a while. immediate execution causes some browsers to ignore caching
             if (!isReady) {
                 queue.push(function()  {
-                    api.js.apply(null, args);
+                    api.load.apply(null, args);
                 });
                 
                 return api;
@@ -78,14 +91,14 @@
 
                 // load
                 each(rest, function(el) {
-                    if (!isFunc(el)) {
+                    if (!isFunction(el)) {
                         preload(getScript(el));
                     }
                 });
 
                 // execute
-                load(getScript(args[0]), isFunc(next) ? next : function() {
-                    api.js.apply(null, rest);
+                load(getScript(args[0]), isFunction(next) ? next : function () {
+                    api.load.apply(null, rest);
                 });
 
 
@@ -99,15 +112,63 @@
         };
     }
 
-    // Alias for logical reasons
-    api.css = api.js;
+    // INFO: for retro compatibility
+    api.js = api.load;
+
+    api.test = function (test, success, failure, callback) {
+        ///<summary>
+        /// INFO: use cases:
+        ///    head.test(condition, null       , "file.NOk" , callback);
+        ///    head.test(condition, "fileOk.js", null       , callback);        
+        ///    head.test(condition, "fileOk.js", "file.NOk" , callback);
+        ///    head.test(condition, "fileOk.js", ["file.NOk", "file.NOk"], callback);
+        ///    head.test({
+        ///               test    : condition,
+        ///               success : [{ label1: "file1Ok.js"  }, { label2: "file2Ok.js" }],
+        ///               failure : [{ label1: "file1NOk.js" }, { label2: "file2NOk.js" }],
+        ///               callback: callback
+        ///    );  
+        ///    head.test({
+        ///               test    : condition,
+        ///               success : ["file1Ok.js" , "file2Ok.js"],
+        ///               failure : ["file1NOk.js", "file2NOk.js"],
+        ///               callback: callback
+        ///    );         
+        ///</summary>    
+        var obj = (typeof test === 'object') ? test : {
+            test    : test,
+            success : !!success ? isArray(success) ? success : [success] : false,
+            failure : !!failure ? isArray(failure) ? failure : [failure] : false,
+            callback: callback || noop
+        };
+
+        // Test Passed ?
+        var passed = !!obj.test;
+        
+        // Do we have a success case
+        if (passed && !!obj.success) {
+            obj.success.push(obj.callback);
+            api.load.apply(null, obj.success);
+        }
+        // Do we have a fail case
+        else if (!passed && !!obj.failure) {
+            obj.failure.push(obj.callback);                
+            api.load.apply(null, obj.failure);
+        }
+        else {
+            callback();
+        }
+        
+        return api;
+    };
 
     api.ready = function (key, fn) {
         ///<summary>
         /// INFO: use cases:
-        ///    head.ready(document  , callBack)
-        ///    head.ready("filename", callBack);
-        ///    head.ready("label"   , callBack);        
+        ///    head.ready(callBack)
+        ///    head.ready(document , callBack)
+        ///    head.ready("file.js", callBack);
+        ///    head.ready("label"  , callBack);        
         ///</summary>
                    
         // INFO: retro compatibiliy ..we don't even support things like ready(window) or on other elements, so we fire on document no matter what
@@ -116,13 +177,13 @@
         }
         
         // shift arguments
-        if (isFunc(key)) {
+        if (isFunction(key)) {
             fn  = key;
             key = "ALL";
         }    
 
         // make sure arguments are sane
-        if (typeof key !== 'string' || !isFunc(fn)) {
+        if (typeof key !== 'string' || !isFunction(fn)) {
             return api;
         }
 
@@ -145,11 +206,52 @@
         return api;
     };
 
+
     /* private functions
     *********************/
     function noop() {
         // does nothing
     }
+    
+    function each(arr, fn) {
+        if (!arr) {
+            return;
+        }
+
+        // arguments special type
+        if (typeof arr === 'object') {
+            arr = [].slice.call(arr);
+        }
+
+        // do the job
+        for (var i = 0, l = arr.length; i < l; i++) {
+            fn.call(arr, arr[i], i);
+        }
+    }
+
+    // http://bonsaiden.github.com/JavaScript-Garden/#types
+    function is(type, obj) {
+        var clas = Object.prototype.toString.call(obj).slice(8, -1);
+        return obj !== undefined && obj !== null && clas === type;
+    }
+
+    function isFunction(el) {
+        return is("Function", el);
+    }
+    
+    function isArray(el) {
+        return is("Array", el);
+    }
+    
+    function toLabel(url) {
+        var els   = url.split("/"),
+             name = els[els.length -1],
+             i    = name.indexOf("?");
+
+        return i !== -1 ? name.substring(0, i) : name;
+    }
+    
+
     
     // call function once
     function one(fn) {
@@ -163,19 +265,9 @@
         fn._done = 1;
     }
 
-
-    function toLabel(url) {
-        var els   = url.split("/"),
-             name = els[els.length -1],
-             i    = name.indexOf("?");
-
-        return i !== -1 ? name.substring(0, i) : name;
-    }
-
-
     function getScript(url) {
         var script = {};
-
+     
         if (typeof url === 'object') {
             for (var key in url) {
                 if (url[key]) {
@@ -196,27 +288,6 @@
         return script;
     }
 
-
-    function each(arr, fn) {
-        if (!arr) {
-            return;
-        }
-
-        // arguments special type
-        if (typeof arr == 'object') {
-            arr = [].slice.call(arr);
-        }
-
-        // do the job
-        for (var i = 0, l = arr.length; i < l; i++) {
-            fn.call(arr, arr[i], i);
-        }
-    }
-
-    function isFunc(el) {
-        return Object.prototype.toString.call(el) == '[object Function]';
-    }
-
     function allLoaded(els) {       
         els = els || scripts;       
 
@@ -232,7 +303,6 @@
         
         return isLoaded;
     }
-
 
     function onPreload(script) {
         script.state = PRELOADED;
@@ -291,6 +361,7 @@
         });
     }
         
+
     function scriptTag(src, callback) {
         var s;
         
@@ -307,8 +378,7 @@
         }
         
         loadAsset(s, callback);
-    }
-    
+    }    
     function loadAsset(s, callback) {
         callback = callback || noop;
         
@@ -342,6 +412,7 @@
         head.insertBefore(s, head.lastChild);
     }
     
+
     /* START READY
      * The much desired DOM ready check
      * Thanks to jQuery and http://javascript.nwbox.com/IEContentLoaded/
@@ -364,8 +435,7 @@
                 one(fn);
             });
         }
-    }
-    
+    }    
     function domContentLoaded() {
         if (doc.addEventListener) {
             doc.removeEventListener("DOMContentLoaded", domContentLoaded, false);
