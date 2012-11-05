@@ -1,11 +1,12 @@
-/**
-    Head JS     The only script in your <HEAD>
-    Copyright   Tero Piirainen (tipiirai)
-    License     MIT / http://bit.ly/mit-license
-    Version     0.98
-
-    http://headjs.com
-*/
+/*!
+ * HeadJS          The only script in your <HEAD>    
+ * Created By      Tero Piirainen  (tipiirai)
+ * Maintained By   Robert Hoffmann (itechnology)
+ * License         MIT / http://bit.ly/mit-license
+ *
+ * Version 0.98
+ * http://headjs.com
+ */
 ;(function(win, undefined) {
     "use strict";
 
@@ -221,7 +222,6 @@
     }
     
     function toLabel(url) {
-        console.log(url);
         ///<summary>Converts a url to a file label</summary>
         var els   = url.split("/"),
              name = els[els.length -1],

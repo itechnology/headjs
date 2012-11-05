@@ -1,155 +1,50 @@
-/**
-    Head JS     The only script in your <HEAD>
-    Copyright   Tero Piirainen (tipiirai)
-    License     MIT / http://bit.ly/mit-license
-    Version     Modified: v0.96
-
-    https://github.com/itechnology/headjs
-*/
-;(function(win, undefined) {
-    "use strict";
-
-    var doc = win.document,
-        nav = win.navigator,
-
-    /*
-        To add a new test:
-
-        head.feature("video", function() {
-            var tag = document.createElement('video');
-            return !!tag.canPlayType;
-        });
-
-        Good place to grab more tests
-
-        https://github.com/Modernizr/Modernizr/blob/master/modernizr.js
-    */
-
-    /* CSS modernizer */
-         el       = doc.createElement("i"),
-         style    = el.style,
-         prefs    = ' -o- -moz- -ms- -webkit- -khtml- '.split(' '),
-         domPrefs = 'Webkit Moz O ms Khtml'.split(' '),
-
-         headVar = win.head_conf && win.head_conf.head || "head",
-         api     = win[headVar];
-
-     // Thanks Paul Irish!
-    function testProps(props) {
-        for (var i in props) {
-            if (style[props[i]] !== undefined) {
-                return true;
-            }
-        }
-
-        return false;
+﻿// Test for browser flash support
+head.feature("flash", function () {
+    if (!!navigator.plugins["Shockwave Flash"]) {
+        return true;
     }
 
-
-    function testAll(prop) {
-        var camel = prop.charAt(0).toUpperCase() + prop.substr(1),
-            props = (prop + ' ' + domPrefs.join(camel + ' ') + camel).split(' ');
-
-        return !!testProps(props);
-    }
-
-    var tests = {
-
-        gradient: function() {
-            var s1 = 'background-image:',
-                s2 = 'gradient(linear,left top,right bottom,from(#9f9),to(#fff));',
-                s3 = 'linear-gradient(left top,#eee,#fff);';
-
-            style.cssText = (s1 + prefs.join(s2 + s1) + prefs.join(s3 + s1)).slice(0,-s1.length);
-            return !!style.backgroundImage;
-        },
-
-        rgba: function() {
-            style.cssText = "background-color:rgba(0,0,0,0.5)";
-            return !!style.backgroundColor;
-        },
-
-        opacity: function() {
-            return el.style.opacity === '';
-        },
-
-        textShadow: function() {
-            return style.textShadow === '';
-        },
-
-        multipleBackground: function() {
-            style.cssText = "background:url(//:),url(//:),red url(//:)";
-            return new RegExp("(url\\s*\\(.*?){3}").test(style.background);
-        },
-
-        boxShadow: function() {
-            return testAll("boxShadow");
-        },
-
-        borderImage: function() {
-            return testAll("borderImage");
-        },
-
-        borderRadius: function() {
-            return testAll("borderRadius");
-        },
-
-        boxReflect: function() {
-            return testAll("boxReflect");
-        },
-
-        transform: function() {
-            return testAll("transform");
-        },
-
-        transition: function() {
-            return testAll("transition");
-        },
-
-        /* Euhmm ..
-         * i guess version numbers all depend on what kind of font detection you actually want: svg, woff, ttf/otf, or eot
-         * http://caniuse.com/#search=font
-         * The following values are set up for WOFF
-         ***********************/
-        fontFace: function() {
-            var browser = api.browser.name, version = api.browser.version;
-
-            switch(browser) {
-                case "ie":
-                    return version >= 9;
-
-                case "chrome":
-                    return version >= 13;
-
-                case "ff":
-                    return version >= 6;
-
-                case "ios":
-                    return version >= 5;
-
-                case "android":
-                    return false;
-
-                case "safari":
-                    return version >= 5.1;
-
-                case "opera":
-                    return version >= 10;
-
-                default:
-                    return false;
-            }
+    var minVersion = 9;
+    var maxVersion = 11;                        
+    for (var i = maxVersion; i >= minVersion; i--)
+    {
+        try
+        {
+            return !!new window.ActiveXObject("ShockwaveFlash.ShockwaveFlash." + i);
         }
-    };
+        catch (e) { }
+    }                        
 
-    // queue features
-    for (var key in tests) {
-        if (tests[key]) {
-            api.feature(key, tests[key].call(), true);
+    return false;
+}, true);
+// Test for browser geolocation support
+head.feature("geolocation", function () {
+    return "geolocation" in navigator;
+}, true);
+// Test for browser localStorage support
+head.feature("localStorage", function () {
+    try {
+        // Firefox won't allow localStorage if cookies are disabled
+        if (!!window.localStorage) {
+            // Safari's "Private" mode throws a QUOTA_EXCEEDED_ERR on setItem
+            window.localStorage.setItem("head:localstorage", true);
+            window.localStorage.removeItem("head:localstorage");
+
+            return true;
         }
-    }
+    } catch (e) {}
 
-    // enable features at once
-    api.feature();
+    return false;
+}, true);
+// Test for device retina support
+head.feature("retina", function () {
+    return (window.devicePixelRatio > 1);
+}, true);
 
-})(window);
+// Test for device touch support
+head.feature("touch", function () {
+    return "ontouchstart" in window;
+}, true);
+
+// Trigger feature(), since all tests where added via queue
+head.feature();

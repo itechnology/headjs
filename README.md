@@ -6,11 +6,17 @@ Modified version of head.js [http://headjs.com](http://headjs.com)
 0.98:
 
  * Conditional loader (testing)
- * rewrote big part of ready() code
+ * Loading of CSS files
+ * Exposed lt, lte, eq, gt, gte variables for browser, height, & width detections in head_conf
+   * you can now choose yourself if you want to only generate lt classes or lt, gt, gte, etc
+ * Rewrote big part of ready() code
    * fixes problems with ready() not being executed in certain cases
- * rewrote main function of loading code
+ * Rewrote main function of loading code
    * fixes loading from inside <head> tag
    * fixes problems with callback not being executed in older browsers
+ * Moved main test functions from head.features to head.responsive
+   * head.features now is a simple library that holds a handful of various tests
+   * you can find extra tests in /src/features
 
 Changed from head.js v0.96:
 

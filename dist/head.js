@@ -1,11 +1,12 @@
-﻿/**
-    Head JS     The only script in your <HEAD>
-    Copyright   Tero Piirainen (tipiirai)
-    License     MIT / http://bit.ly/mit-license
-    Version     Modified: v0.96
-
-    https://github.com/itechnology/headjs
-*/
+﻿/*!
+ * HeadJS          The only script in your <HEAD>    
+ * Created By      Tero Piirainen  (tipiirai)
+ * Maintained By   Robert Hoffmann (itechnology)
+ * License         MIT / http://bit.ly/mit-license
+ *
+ * Version 0.98
+ * http://headjs.com
+ */
 ; (function(win, undefined) {
     "use strict";
     
@@ -13,13 +14,31 @@
         nav   = win.navigator,
         loc   = win.location,
         html  = doc.documentElement,
-        klass = [],        
+        klass = [],
+        
+        /* CSS Moderniser */
+        cssEle   = doc.createElement("i"),
+        style    = cssEle.style,
+        domPrefs = 'Webkit Moz O ms Khtml'.split(' '),
+        
         conf  = {
-            width  : [240, 320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
-            height : [240, 320, 480, 600, 768, 800, 900, 1050, 1080],
-            section: "section-",
-            page   : "page-",
-            head   : "head"
+            width     : [240, 320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
+            widthCss  : { "gt": true, "gte": true, "lt": true, "lte": true, "eq": true },
+            height    : [240, 320, 480, 600, 768, 800, 900, 1050, 1080],
+            heightCss : { "gt": true, "gte": true, "lt": true, "lte": true, "eq": true },
+            browsers  : [
+                          { ie     : { min: 6, max: 10 } },
+                          { chrome : { min: 8, max: 24 } },
+                          { ff     : { min: 3, max: 19 } },
+                          { ios    : { min: 3, max:  6 } },
+                          { android: { min: 2, max:  4 } },
+                          { webkit : { min: 9, max: 12 } },
+                          { opera  : { min: 9, max: 12 } }
+                        ],
+            browserCss: { "gt": true, "gte": true, "lt": true, "lte": true, "eq": true },
+            section   : "section-",
+            page      : "page-",
+            head      : "head"
          };
 
     if (win.head_conf) {
@@ -35,7 +54,7 @@
     }
 
     function removeClass(name) {
-        var re = new RegExp("\\b" + name + "\\b");
+        var re  = new RegExp("\\b" + name + "\\b");
         html.className = html.className.replace(re, '');
     }
 
@@ -44,14 +63,18 @@
             fn.call(arr, arr[i], i);
         }
     }
-
-
+         
     // API
     var api = win[conf.head] = function() {
         api.ready.apply(null, arguments);
     };
 
+    /* Feature Detections
+    *********************/
     api.features = {};
+    
+    // INFO: add a use case to enable
+    // head.feature("box-shadow", success, failure)
     api.feature  = function(key, enabled, queue) {
 
         // internal: apply all classes
@@ -65,8 +88,9 @@
             enabled = enabled.call();
         }
 
-        // css readable friendly  (use lowerCamelCase on feature names)
-        var cssKey = key.replace(/([A-Z])/g, function($1) { return "-" + $1.toLowerCase(); });
+        // css friendly (dashed lowercase)
+        //  js friendly (lowerCamelCase)
+        var cssKey = key.replace(/([A-Z])/g, function ($1) { return "-" + $1.toLowerCase(); });
 
         pushClass(cssKey + '-' + enabled);
         api.features[key] = !!enabled;
@@ -76,10 +100,33 @@
             removeClass(cssKey + '-false');
             removeClass(cssKey + '-true');
             api.feature();
-    }
+        }
 
         return api;
     };
+    
+    /* CSS Moderniser, Thanks Paul Irish!
+    *************************************/
+    api.cssPropertyExists = function(prop) {
+        ///<summary>
+        /// Checks for the existance of a given css property
+        /// cssPropertyExists("borderRadius")
+        /// </summary>
+        ///<param name="prop">loweCamelCase version of the property</param>
+        
+        var camel = prop.charAt(0).toUpperCase() + prop.substr(1),
+            props = (prop + ' ' + domPrefs.join(camel + ' ') + camel).split(' ');
+
+        for (var i in props) {
+            if (style[props[i]] !== undefined) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+    /* CSS Moderniser
+    *************************/
 
     // no queue here, so we can remove any eventual pre-existing no-js class
     api.feature("js", true);
@@ -91,7 +138,6 @@
     // useful for enabling/disabling feature (we can consider a desktop navigator to have more cpu/gpu power)        
     api.feature("mobile" ,  mobile, true);
     api.feature("desktop", !mobile, true);
-    api.feature("touch"  , 'ontouchstart' in win, true);
     
     // http://www.zytrax.com/tech/web/browser_ids.htm
     // http://www.zytrax.com/tech/web/mobile_ids.html
@@ -103,104 +149,82 @@
 
 
     var browser = ua[1],
-        version = parseFloat(ua[2]),
-        start   = 0,
-        stop    = 0;    
+        version = parseFloat(ua[2]);    
     
     switch(browser) {
         case 'msie':
             browser = 'ie';
             version = doc.documentMode || version;
-
-            start = 6;
-            stop  = 10;
-            break;
-
-        // Add/remove extra tests here
-        case 'chrome':
-            start = 8;
-            stop  = 24;
             break;
 
         case 'firefox':
             browser = 'ff';
-
-            start = 3;
-            stop  = 17;
             break;
 
         case 'ipod':
         case 'ipad':
         case 'iphone':
             browser = 'ios';
-
-            start = 3;
-            stop  = 6;
-            break;
-
-        case 'android':
-            start = 2;
-            stop  = 4;
-            break;
-
-        case 'webkit':
-            browser = 'safari';
-
-            start = 9;
-            stop  = 12;
-            break;
-
-        case 'opera':
-            start = 9;
-            stop  = 12;
             break;
     }
     
 
-    // name can be used further on for various tasks, like font-face detection in css3.js
+    // Browser vendor and version
     api.browser = {
         name   : browser,
         version: version        
     };
     api.browser[browser] = true;
 
+    for (var i = 0, l = conf.browsers.length; i < l; i++) {
+        for (var key in conf.browsers[i]) {            
+            if (browser === key) {
+                pushClass(key);
+                pushClass(key + '-true');
 
-    // add supported, not supported classes
-    var supported = ['ie', 'chrome', 'ff', 'ios', 'android', 'safari', 'opera'];
-    each(supported, function(name) {
-        if (name === browser) {
-             pushClass(name);
-            pushClass(name + '-true');
-        }
-        else {
-            pushClass(name + '-false');            
-        }
-    });    
+                var min = conf.browsers[i][key].min;
+                var max = conf.browsers[i][key].max;
 
-    
-    for (var v = start; v <= stop; v++) {
-        if (version > v) {
-            pushClass(browser + "-gt"  + v);
-            pushClass(browser + "-gte" + v);
+                for (var v = min; v <= max; v++) {
+                    if (version > v) {
+                        if (conf.browserCss["gt"])
+                            pushClass(key + "-gt" + v);
+                        
+                        if (conf.browserCss["gte"])
+                            pushClass(key + "-gte" + v);                        
+                    }
+                    
+                    else if (version < v) {
+                        if (conf.browserCss["lt"])
+                            pushClass(key + "-lt" + v);
+                        
+                        if (conf.browserCss["lte"])
+                            pushClass(key + "-lte" + v);                        
+                    }
+                    
+                    else if (version === v) {
+                        if (conf.browserCss["lte"])
+                            pushClass(key + "-lte" + v);
+                        
+                        if (conf.browserCss["eq"])
+                            pushClass(key + "-eq" + v);
+                        
+                        if (conf.browserCss["gte"])
+                            pushClass(key + "-gte" + v);                        
+                    }
+                }
+            }
+            else {
+                pushClass(key + '-false');
+            }
         }
-
-        else if (version < v) {
-            pushClass(browser + "-lt"  + v);
-            pushClass(browser + "-lte" + v);
-        }
-
-        else if (version === v) {
-            pushClass(browser + "-lte" + v);
-            pushClass(browser + "-eq"  + v);
-            pushClass(browser + "-gte" + v);
-        }
-    }   
+    }    
 
 
     // IE lt9 specific
     if (browser === "ie" && version < 9) {
         // HTML5 support : you still need to add html5 css initialization styles to your site
-        // See: assets/html5.css
+        // See: dist/html5.css
         each("abbr|article|aside|audio|canvas|details|figcaption|figure|footer|header|hgroup|mark|meter|nav|output|progress|section|summary|time|video".split("|"), function(el) {
             doc.createElement(el);
         });
@@ -213,7 +237,8 @@
             if (i) {
                 pushClass(conf.section + this.slice(1, i + 1).join("-").toLowerCase());
             }
-        } else {
+        }
+        else {
             // pageId
             var id = el || "index", index = id.indexOf(".");
             if (index > 0) {
@@ -251,21 +276,32 @@
         // for debugging purposes, not really useful for anything else
         pushClass("w" + iw);
 
-        each(conf.width, function(width) {
+        each(conf.width, function (width) {
             if (iw > width) {
-                pushClass("w-gt"  + width);
-                pushClass("w-gte" + width);
+                if (conf.widthCss["gt"])
+                    pushClass("w-gt" + width);
+                
+                if (conf.widthCss["gte"])
+                    pushClass("w-gte" + width);
             }
 
             else if (iw < width) {
-                pushClass("w-lt"  + width);
-                pushClass("w-lte" + width);
+                if (conf.widthCss["lt"])
+                    pushClass("w-lt" + width);
+                
+                if (conf.widthCss["lte"])
+                    pushClass("w-lte" + width);
             }
 
             else if (iw === width) {
-                pushClass("w-lte" + width);
-                pushClass("w-eq"  + width);
-                pushClass("w-gte" + width);
+                if (conf.widthCss["lte"])
+                    pushClass("w-lte" + width);
+                
+                if (conf.widthCss["eq"])
+                    pushClass("w-eq" + width);
+                
+                if (conf.widthCss["gte"])
+                    pushClass("w-gte" + width);
             }
         });
         
@@ -281,20 +317,31 @@
         pushClass("h" + ih);
 
         each(conf.height, function(height) {
-             if (ih > height) {
-                 pushClass("h-gt"  + height);
-                 pushClass("h-gte" + height);
+            if (ih > height) {
+                if (conf.heightCss["gt"])
+                    pushClass("h-gt" + height);
+                
+                if (conf.heightCss["gte"])
+                    pushClass("h-gte" + height);
              }
 
             else if (ih < height) {
-                pushClass("h-lt"  + height);
-                pushClass("h-lte" + height);
+                if (conf.heightCss["lt"])
+                    pushClass("h-lt" + height);
+                
+                if (conf.heightCss["lte"])
+                    pushClass("h-lte" + height);
              }
 
             else if (ih === height) {
-                 pushClass("h-lte" + height);
-                 pushClass("h-eq"  + height);
-                 pushClass("h-gte" + height);
+                if (conf.heightCss["lte"])
+                    pushClass("h-lte" + height);
+                
+                if (conf.heightCss["eq"])
+                    pushClass("h-eq" + height);
+                
+                if (conf.heightCss["gte"])
+                    pushClass("h-gte" + height);                
              }
         });        
 
@@ -318,171 +365,68 @@
 
     } else {
         win.attachEvent("onresize", onResize);
-    }    
+    }
 })(window);
-/**
-    Head JS     The only script in your <HEAD>
-    Copyright   Tero Piirainen (tipiirai)
-    License     MIT / http://bit.ly/mit-license
-    Version     Modified: v0.96
-
-    https://github.com/itechnology/headjs
-*/
-;(function(win, undefined) {
-    "use strict";
-
-    var doc = win.document,
-        nav = win.navigator,
-
-    /*
-        To add a new test:
-
-        head.feature("video", function() {
-            var tag = document.createElement('video');
-            return !!tag.canPlayType;
-        });
-
-        Good place to grab more tests
-
-        https://github.com/Modernizr/Modernizr/blob/master/modernizr.js
-    */
-
-    /* CSS modernizer */
-         el       = doc.createElement("i"),
-         style    = el.style,
-         prefs    = ' -o- -moz- -ms- -webkit- -khtml- '.split(' '),
-         domPrefs = 'Webkit Moz O ms Khtml'.split(' '),
-
-         headVar = win.head_conf && win.head_conf.head || "head",
-         api     = win[headVar];
-
-     // Thanks Paul Irish!
-    function testProps(props) {
-        for (var i in props) {
-            if (style[props[i]] !== undefined) {
-                return true;
-            }
-        }
-
-        return false;
+// Test for browser flash support
+head.feature("flash", function () {
+    if (!!navigator.plugins["Shockwave Flash"]) {
+        return true;
     }
 
-
-    function testAll(prop) {
-        var camel = prop.charAt(0).toUpperCase() + prop.substr(1),
-            props = (prop + ' ' + domPrefs.join(camel + ' ') + camel).split(' ');
-
-        return !!testProps(props);
-    }
-
-    var tests = {
-
-        gradient: function() {
-            var s1 = 'background-image:',
-                s2 = 'gradient(linear,left top,right bottom,from(#9f9),to(#fff));',
-                s3 = 'linear-gradient(left top,#eee,#fff);';
-
-            style.cssText = (s1 + prefs.join(s2 + s1) + prefs.join(s3 + s1)).slice(0,-s1.length);
-            return !!style.backgroundImage;
-        },
-
-        rgba: function() {
-            style.cssText = "background-color:rgba(0,0,0,0.5)";
-            return !!style.backgroundColor;
-        },
-
-        opacity: function() {
-            return el.style.opacity === '';
-        },
-
-        textShadow: function() {
-            return style.textShadow === '';
-        },
-
-        multipleBackground: function() {
-            style.cssText = "background:url(//:),url(//:),red url(//:)";
-            return new RegExp("(url\\s*\\(.*?){3}").test(style.background);
-        },
-
-        boxShadow: function() {
-            return testAll("boxShadow");
-        },
-
-        borderImage: function() {
-            return testAll("borderImage");
-        },
-
-        borderRadius: function() {
-            return testAll("borderRadius");
-        },
-
-        boxReflect: function() {
-            return testAll("boxReflect");
-        },
-
-        transform: function() {
-            return testAll("transform");
-        },
-
-        transition: function() {
-            return testAll("transition");
-        },
-
-        /* Euhmm ..
-         * i guess version numbers all depend on what kind of font detection you actually want: svg, woff, ttf/otf, or eot
-         * http://caniuse.com/#search=font
-         * The following values are set up for WOFF
-         ***********************/
-        fontFace: function() {
-            var browser = api.browser.name, version = api.browser.version;
-
-            switch(browser) {
-                case "ie":
-                    return version >= 9;
-
-                case "chrome":
-                    return version >= 13;
-
-                case "ff":
-                    return version >= 6;
-
-                case "ios":
-                    return version >= 5;
-
-                case "android":
-                    return false;
-
-                case "safari":
-                    return version >= 5.1;
-
-                case "opera":
-                    return version >= 10;
-
-                default:
-                    return false;
-            }
+    var minVersion = 9;
+    var maxVersion = 11;                        
+    for (var i = maxVersion; i >= minVersion; i--)
+    {
+        try
+        {
+            return !!new window.ActiveXObject("ShockwaveFlash.ShockwaveFlash." + i);
         }
-    };
+        catch (e) { }
+    }                        
 
-    // queue features
-    for (var key in tests) {
-        if (tests[key]) {
-            api.feature(key, tests[key].call(), true);
+    return false;
+}, true);
+// Test for browser geolocation support
+head.feature("geolocation", function () {
+    return "geolocation" in navigator;
+}, true);
+// Test for browser localStorage support
+head.feature("localStorage", function () {
+    try {
+        // Firefox won't allow localStorage if cookies are disabled
+        if (!!window.localStorage) {
+            // Safari's "Private" mode throws a QUOTA_EXCEEDED_ERR on setItem
+            window.localStorage.setItem("head:localstorage", true);
+            window.localStorage.removeItem("head:localstorage");
+
+            return true;
         }
-    }
+    } catch (e) {}
 
-    // enable features at once
-    api.feature();
+    return false;
+}, true);
+// Test for device retina support
+head.feature("retina", function () {
+    return (window.devicePixelRatio > 1);
+}, true);
 
-})(window);
-/**
-    Head JS     The only script in your <HEAD>
-    Copyright   Tero Piirainen (tipiirai)
-    License     MIT / http://bit.ly/mit-license
-    Version     0.98
+// Test for device touch support
+head.feature("touch", function () {
+    return "ontouchstart" in window;
+}, true);
 
-    http://headjs.com
-*/
+// Trigger feature(), since all tests where added via queue
+head.feature();
+
+/*!
+ * HeadJS          The only script in your <HEAD>    
+ * Created By      Tero Piirainen  (tipiirai)
+ * Maintained By   Robert Hoffmann (itechnology)
+ * License         MIT / http://bit.ly/mit-license
+ *
+ * Version 0.98
+ * http://headjs.com
+ */
 ;(function(win, undefined) {
     "use strict";
 
@@ -698,7 +642,6 @@
     }
     
     function toLabel(url) {
-        console.log(url);
         ///<summary>Converts a url to a file label</summary>
         var els   = url.split("/"),
              name = els[els.length -1],

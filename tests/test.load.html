@@ -1,16 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html class="someshit">
     <head>
         <meta charset="utf-8"/>
         <title>Various tests</title>
-        
+        <script>
+            var head_conf = {
+                widthCss  : { "gt" : true },
+                heightCss : { "gt" : true },
+                browserCss: { "gte": true, "lte": true },
+                browsers  : [{ ie: { min: 6, max: 10 } }]
+            };
+        </script>
         <script src="../src/head.responsive.js"></script>
+        <script src="../src/head.feature.js"></script>
         <script src="../src/head.load.js"></script>
         
         <!--script src="https://raw.github.com/headjs/headjs/v0.96/dist/head.load.min.js"></script-->
         <!--script src="http://code.jquery.com/jquery-1.8.2.min.js"></script-->
         <script>           
-            //head.test(
+        //head.test(
             //    !head.features.js,
             //    ["http://code.jquery.com/jquery-1.8.0.min.js", "http://code.jquery.com/jquery-1.8.1.min.js"],
             //    "http://code.jquery.com/jquery-1.8.2.min.js",
@@ -31,7 +39,7 @@
     </head>
 <body>
 <script>
-    //head.load("http://code.jquery.com/jquery-1.8.2.min.js", function () { console.log("ok"); });
+//head.load("http://code.jquery.com/jquery-1.8.2.min.js", function () { console.log("ok"); });
     //head.load(
     //    { jshint: "http://ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js" },
     //    { jquery: "http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js" },

@@ -1,0 +1,177 @@
+﻿/*
+ * Taken from: https://github.com/aFarkas/html5shiv/blob/master/src/html5shiv.js
+ * Must be in <head>. head.js must also be in <head>
+ * Use:
+ * <!--[if lt IE 9]><link rel="stylesheet" href="html5.css" /><![endif]-->
+ ********************************************************************************/
+/* Corrects block display not defined in IE6/7/8/9 */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section {
+    display:block;
+}
+
+/* Corrects audio display not defined in IE6/7/8/9 */
+audio {
+    display: none;
+}
+
+/* Corrects canvas and video display not defined in IE6/7/8/9 */
+canvas,
+video {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+/* Corrects 'hidden' attribute and audio[controls] display not present in IE7/8/9 */
+[hidden] {
+    display: none;
+}
+audio[controls] {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+/* Addresses styling not present in IE6/7/8/9 */
+mark {
+    background: #FF0;
+    color: #000;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
