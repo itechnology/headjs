@@ -3,6 +3,15 @@ Modified version of head.js [http://headjs.com](http://headjs.com)
 
 * [Try it](http://itechnology.github.com/headjs/)
 
+0.98:
+
+ * Conditional loader (testing)
+ * rewrote big part of ready() code
+   * fixes problems with ready() not being executed in certain cases
+ * rewrote main function of loading code
+   * fixes loading from inside <head> tag
+   * fixes problems with callback not being executed in older browsers
+
 Changed from head.js v0.96:
 
     * Added/changed some browser version detections

@@ -504,90 +504,67 @@
         LOADED     = 4;
 
     // Method 1: simply load and let browser take care of ordering
-    if (isAsync) {
-        api.load = function () {
-            ///<summary>
-            /// INFO: use cases
-            ///    head.load("http://domain.com/file.js", callBack)
-            ///    head.load("http://domain.com/file.js","http://domain.com/file.js", callBack)
-            ///    head.load({ label1: "http://domain.com/file.js" }, { label2: "http://domain.com/file.js" }, callBack)
-            ///</summary> 
+    api.load = function () {
+        ///<summary>
+        /// INFO: use cases
+        ///    head.load("http://domain.com/file.js", callBack)
+        ///    head.load("http://domain.com/file.js","http://domain.com/file.js", callBack)
+        ///    head.load({ label1: "http://domain.com/file.js" }, { label2: "http://domain.com/file.js" }, callBack)
+        ///</summary> 
             
-            var args = arguments,
-                 fn  = args[args.length - 1],
-                 els = {};
+        // we need a reference to arguments because of the function inside each() below
+        var args      = arguments,
+            callback  = args[args.length - 1],
+            items     = {};
+            
+        if (!isFunction(callback)) {
+            callback = noop;
+        }
+            
 
-            if (!isFunction(fn)) {
-                fn = null;
-            }
-
-            each(args, function(el, i) {
-
-                if (el != fn) {
-                    el = getScript(el);
-                    els[el.name] = el;
-
-                    load(el, fn && i === args.length - 2 ? function () {
-                        if (allLoaded(els)) {
-                            one(fn);
-                        }
-
-                    } : null);
-                }
-            });
-
-            return api;
-        };
-
-    // Method 2: preload with text/cache hack
-    } else {
-        api.load = function () {
-            ///<summary>
-            /// INFO: use cases
-            ///    head.load("http://domain.com/file.js")
-            ///    head.load("http://domain.com/file.js", callBack)
-            ///    head.load("http://domain.com/file.js","http://domain.com/file.js", callBack)
-            ///    head.load({ label1: "http://domain.com/file.js" }, { label2: "http://domain.com/file.js" }, callBack)
-            ///</summary>           
-
-            var args = arguments,
-                rest = [].slice.call(args, 1),
-                next = rest[0];
-
-            // wait for a while. immediate execution causes some browsers to ignore caching
+        /* START Older Browser support
+        ******************************/
+        if (!isAsync) {
+            // 1st in older browsers we want to make sure we are ready()
             if (!isReady) {
-                queue.push(function()  {
+                queue.push(function () {
                     api.load.apply(null, args);
                 });
-                
+
                 return api;
             }
 
-            // multiple arguments
-            if (next) {
+            /* Preload with text/cache hack (not good!) http://blog.getify.com/on-script-loaders/
+             * In certain browser, make sure that scripts are executed in the same order as loaded
+             * If caching is not configured correctly on server, this will cause scripts to load twice
+             ******************************************************************************************/
+            each(args, function (item) {
+                if (item !== callback) {
+                    preload(getScript(item));
+                }
+            });
+        }
+        /* END Older Browser support
+        ****************************/
+            
 
-                // load
-                each(rest, function(el) {
-                    if (!isFunction(el)) {
-                        preload(getScript(el));
+        each(args, function (item, i) {                
+            if (item !== callback) {
+                item             = getScript(item);
+                items[item.name] = item;
+
+                // Only run the callback once when we finished looping over the other items
+                load(item, (i === args.length - 2) ? function () {                        
+                    if (allLoaded(items)) {
+                        one(callback);
                     }
-                });
 
-                // execute
-                load(getScript(args[0]), isFunction(next) ? next : function () {
-                    api.load.apply(null, rest);
-                });
-
-
-            // single script
+                } : null);
             }
-            else {
-                load(getScript(args[0]));
-            }
+        });           
 
-            return api;
-        };
-    }
+        return api;
+    };
 
     // INFO: for retro compatibility
     api.js = api.load;
@@ -721,6 +698,8 @@
     }
     
     function toLabel(url) {
+        console.log(url);
+        ///<summary>Converts a url to a file label</summary>
         var els   = url.split("/"),
              name = els[els.length -1],
              i    = name.indexOf("?");
@@ -742,36 +721,50 @@
         fn._done = 1;
     }
 
-    function getScript(url) {
+    function getScript(item) {
+        ///<summary>
+        /// Gets a script in the form of
+        /// { 
+        ///     name: label,
+        ///     url : url
+        /// }
+        ///</summary>
         var script = {};
-     
-        if (typeof url === 'object') {
-            for (var key in url) {
-                if (url[key]) {
-                    script = { name: key, url: url[key] };
+
+        if (typeof item === 'object') {
+            for (var label in item) {
+                if (!!item[label]) {
+                    script = {
+                        name: label,
+                        url : item[label]
+                    };
                 }
             }
         }
         else {
-            script = { name: toLabel(url),  url: url };
+            script = {
+                name: toLabel(item),
+                url : item
+            };
         }
 
+        // is the item already existant
         var existing = scripts[script.name];
         if (existing && existing.url === script.url) {
             return existing;
         }
 
-        scripts[script.name] = script;
+        scripts[script.name] = script;                
         return script;
     }
 
-    function allLoaded(els) {       
-        els = els || scripts;       
+    function allLoaded(items) {       
+        items = items || scripts;
 
         var isLoaded = false;
         
-        for (var name in els) {
-            if (els.hasOwnProperty(name) && els[name].state !== LOADED) {
+        for (var name in items) {
+            if (items.hasOwnProperty(name) && items[name].state !== LOADED) {
                 return false;
             }
             
@@ -782,19 +775,21 @@
     }
 
     function onPreload(script) {
+        ///<summary>Used with text/cache hack</summary>
         script.state = PRELOADED;
 
-        each(script.onpreload, function(el) {
-            el.call();
+        each(script.onpreload, function (item) {
+            item.call();
         });
     }
 
-    function preload(script) {        
+    function preload(script) {
+        ///<summary>User with text/cache hack</summary>
         if (script.state === undefined) {
             script.state     = PRELOADING;
             script.onpreload = [];
 
-            scriptTag({ src: script.url, type: 'cache'}, function()  {
+            scriptTag({ src: script.url, type: 'cache' }, function () {
                 onPreload(script);
             });
         }
@@ -812,7 +807,7 @@
         }
 
         if (script.state === PRELOADING) {
-            return script.onpreload.push(function() {
+            return script.onpreload.push(function () {                
                 load(script, callback);
             });
         }
@@ -873,10 +868,34 @@
 
         function process(event) {
             event = event || win.event;
-            // IE 6-9 will trigger 1 event : s.readyState (1: complete)
-            // IE 10  will trigger 2 events: s.readyState (1: loaded, 2: complete)
-            // All other browsers seem trigger 1 event.type (1: load)
-            if (event.type === 'load' || /complete/.test(s.readyState)) {
+            // IE 6-9 will trigger 3 events
+            //   1) event.type = readystatechange, s.readyState = loading
+            //   1) event.type = readystatechange, s.readyState = loaded
+            //   1) event.type = readystatechange, s.readyState = complete
+            
+            // IE 10 will trigger 2 events
+            //   1) event.type = readystatechange, s.readyState = loading
+            //   2) event.type = load            , s.readyState = complete
+
+            // All other browsers seem trigger 1 event
+            //   1) event.type = load, s.readyState = undefined
+            if (event.type === 'load' || /complete/.test(s.readyState)) {                
+                // release event listeners
+                s.onload = s.onreadystatechange = s.onerror = null;
+                callback();
+            }
+            
+            /* This part is for the text/cache handling & older browser support
+            ********************************************************************/
+            var script = getScript(s.src || s.href); // should be moving this to the top, or change main method so we can act on the state of the script more easily
+            
+            if (event.type === 'readystatechange' && /loading/.test(s.readyState)) {
+                script.state = LOADING;
+            }
+            
+            if (event.type === 'readystatechange' && /loaded/.test(s.readyState)) {                
+                script.state = LOADED;
+                
                 // release event listeners
                 s.onload = s.onreadystatechange = s.onerror = null;
                 callback();

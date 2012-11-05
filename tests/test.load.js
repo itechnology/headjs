@@ -26,37 +26,37 @@ asyncTest("CSS: load css file", function () {
     head.js("assets/test.css");
 });
 
-asyncTest("jQuery & MooTools: trigger via callback()", function() {
-    expect(2);
+//asyncTest("jQuery & MooTools: trigger via callback()", function() {
+//    expect(2);
     
-    head.js(
-        "http://ajax.googleapis.com/ajax/libs/mootools/1.4.5/mootools-yui-compressed.js",
-        "http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js",
+//    head.js(
+//        "http://ajax.googleapis.com/ajax/libs/mootools/1.4.5/mootools-yui-compressed.js",
+//        "http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js",
         
 
-        function() {                        
-            $j = jQuery.noConflict();
+//        function() {                        
+//            $j = jQuery.noConflict();
                         
-            ok(!!$j("#qunit-header").addClass, "jQuery ok, using noConflict()");
-            ok(!!$$("#qunit-header").addClass, "Mootools ok");
+//            ok(!!$j("#qunit-header").addClass, "jQuery ok, using noConflict()");
+//            ok(!!$$("#qunit-header").addClass, "Mootools ok");
             
-            start();
-        }
-    );
-});
+//            start();
+//        }
+//    );
+//});
 
-asyncTest("jQuery: trigger via filename", function () {
-    expect(1);
+//asyncTest("jQuery: trigger via filename", function () {
+//    expect(1);
     
-    head.ready("jquery.min.js", function() {        
-        ok(!!jQuery, "Ok, triggered on filename: head.ready('jquery.min.js')");
+//    head.ready("jquery.min.js", function() {        
+//        ok(!!jQuery, "Ok, triggered on filename: head.ready('jquery.min.js')");
         
-        start();
-    });
+//        start();
+//    });
     
     
-    head.js("http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js");    
-});
+//    head.js("http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js");    
+//});
 
 
 asyncTest('jshint, jquery, knockout: trigger via labels', function () {
