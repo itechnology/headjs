@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html class="someshit">
+<html class="someclass js-false">
     <head>
         <meta charset="utf-8"/>
         <title>Various tests</title>
+        <!--
         <script>
             var head_conf = {
                 widthCss  : { "gt" : true },
@@ -10,11 +11,31 @@
                 browserCss: { "gte": true, "lte": true },
                 browsers  : [{ ie: { min: 6, max: 10 } }]
             };
-        </script>
-        <script src="../src/head.responsive.js"></script>
+        </script>            
         <script src="../src/head.feature.js"></script>
+        -->
+
+        <script src="../src/head.responsive.js"></script>
         <script src="../src/head.load.js"></script>
-        
+
+        <script>
+            //head.js("http://code.jquery.com/jquery-1.8.2.min.js", "fake/file1.js", function () { console.log("!!!!!!4564646!!!!!"); });
+            //head.ready("jquery-1.8.2.min.js", function () {
+            //    $(document).ready(function () {
+            //        console.log("jquery-1.8.2.min.js");
+            //    });
+                
+            //});
+            //head.js("fake/file1.js", "fake/file2.js", "fake/file3.js", function () { console.log("!!!!!!DONE111111!!!!!"); });
+
+            //head.ready(function() {
+            //    console.log("READY BABY!!!!!!!!!!!!!!!!!");
+            //    $(document).ready(function() {
+            //        console.log("YYYYYYAAAAAAAAYYYYYYY");
+            //    });
+            //});
+
+        </script>
         <!--script src="https://raw.github.com/headjs/headjs/v0.96/dist/head.load.min.js"></script-->
         <!--script src="http://code.jquery.com/jquery-1.8.2.min.js"></script-->
         <script>           
@@ -27,14 +48,29 @@
            
             //$(window).ready(function () { alert("jquery ready");});
             //head.load("http://code.jquery.com/jquery-1.8.0.min.js", "http://code.jquery.com/jquery-1.8.1.min.js", "http://code.jquery.com/jquery-1.8.2.min.js", function () { alert("head ready: js"); });
+            head.load(
+                { label1: "http://code.jquery.com/jquery-1.8.0.min.js" },
+                { label2: "http://code.jquery.com/jquery-1.8.1.min.js" },
+                { label3: "http://code.jquery.com/jquery-1.8.2.min.js" }
+            );
+            ////head.ready(document, function () { alert("head ready: doc"); });
+            //head.ready(function () { console.log("head ready"); });
+            head.ready("label1", function () {
+                 console.log("label1");
+            });
             //head.load(
-            //    { label1: "http://code.jquery.com/jquery-1.8.0.min.js" },
-            //    { label2: "http://code.jquery.com/jquery-1.8.1.min.js" },
-            //    { label3: "http://code.jquery.com/jquery-1.8.2.min.js" }
+            //    { label1: "fake/file1.js" },
+            //    { label2: "fake/file2.js" },
+            //    { label3: "fake/file3.js" },
+            //    { label4: "fake/file4.js" }, function () { console.log("done");}
             //);
-            //head.ready(document, function () { alert("head ready: doc"); });
-            //head.ready(function () { alert("head ready"); });
-
+            //head.js("fake/file1.js", "fake/file2.js", "fake/file3.js", function () { console.log("!!!!!!DONE111111!!!!!"); });
+            //head.js("fake/file1.js", "fake/file2.js", "fake/file3.js", function () { console.log("!!!!!!DONE222222222!!!!!"); });
+            
+            //head.js("fake/file1.js")
+            //    .js("fake/file2.js")
+            //    .js("fake/file3.js")
+            //    .js("fake/file4.js", function () { console.log("!!!!!!DONE!!!!!"); });
         </script>
     </head>
 <body>

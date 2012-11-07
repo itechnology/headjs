@@ -23,19 +23,19 @@
         
         conf  = {
             width     : [240, 320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
-            widthCss  : { "gt": true, "gte": true, "lt": true, "lte": true, "eq": true },
+            widthCss  : { "gt": true, "gte": false, "lt": true, "lte": false, "eq": false },
             height    : [240, 320, 480, 600, 768, 800, 900, 1050, 1080],
-            heightCss : { "gt": true, "gte": true, "lt": true, "lte": true, "eq": true },
+            heightCss : { "gt": true, "gte": false, "lt": true, "lte": false, "eq": false },
             browsers  : [
-                          { ie     : { min: 6, max: 10 } },
-                          { chrome : { min: 8, max: 24 } },
-                          { ff     : { min: 3, max: 19 } },
-                          { ios    : { min: 3, max:  6 } },
-                          { android: { min: 2, max:  4 } },
-                          { webkit : { min: 9, max: 12 } },
-                          { opera  : { min: 9, max: 12 } }
+                          { ie     : { min: 6, max:  9 } }
+                       //,{ chrome : { min: 8, max: 24 } }
+                       //,{ ff     : { min: 3, max: 19 } }
+                       //,{ ios    : { min: 3, max:  6 } }
+                       //,{ android: { min: 2, max:  4 } }
+                       //,{ webkit : { min: 9, max: 12 } }
+                       //,{ opera  : { min: 9, max: 12 } }
                         ],
-            browserCss: { "gt": true, "gte": true, "lt": true, "lte": true, "eq": true },
+            browserCss: { "gt": true, "gte": false, "lt": true, "lte": false, "eq": true },
             section   : "section-",
             page      : "page-",
             head      : "head"
@@ -431,81 +431,70 @@ head.feature();
     "use strict";
 
     var doc      = win.document,
-        queue    = [], // waiters for the "head ready" event
         handlers = {}, // user functions waiting for events
         scripts  = {}, // loadable scripts in different states
-        isAsync  = doc.createElement("script").async === true || "MozAppearance" in doc.documentElement.style || win.opera,
-        isReady,
+        isAsync  = "async" in doc.createElement("script") || "MozAppearance" in doc.documentElement.style || win.opera,
+        isDomReady,
 
         /*** public API ***/
         headVar = win.head_conf && win.head_conf.head || "head",
         api     = win[headVar] = (win[headVar] || function() { api.ready.apply(null, arguments); }),
 
         // states
-        PRELOADED  = 1,
-        PRELOADING = 2,
-        LOADING    = 3,
-        LOADED     = 4;
+        LOADING    = 1,
+        LOADED     = 2;
 
     // Method 1: simply load and let browser take care of ordering
     api.load = function () {
         ///<summary>
         /// INFO: use cases
-        ///    head.load("http://domain.com/file.js", callBack)
         ///    head.load("http://domain.com/file.js","http://domain.com/file.js", callBack)
         ///    head.load({ label1: "http://domain.com/file.js" }, { label2: "http://domain.com/file.js" }, callBack)
         ///</summary> 
-            
-        // we need a reference to arguments because of the function inside each() below
-        var args      = arguments,
-            callback  = args[args.length - 1],
-            items     = {};
-            
+        var current  = arguments[0],
+            callback = arguments[arguments.length - 1];
+        
+        if (!current) {
+            return api;
+        }
+
         if (!isFunction(callback)) {
             callback = noop;
         }
+        
+        if (current == callback) {
+            callback();
+            return api;
+        }
+                
+        if (isAsync) {
+            var items    = {},
+                allItems = [].slice.call(arguments, 0);
             
-
-        /* START Older Browser support
-        ******************************/
-        if (!isAsync) {
-            // 1st in older browsers we want to make sure we are ready()
-            if (!isReady) {
-                queue.push(function () {
-                    api.load.apply(null, args);
-                });
-
-                return api;
-            }
-
-            /* Preload with text/cache hack (not good!) http://blog.getify.com/on-script-loaders/
-             * In certain browser, make sure that scripts are executed in the same order as loaded
-             * If caching is not configured correctly on server, this will cause scripts to load twice
-             ******************************************************************************************/
-            each(args, function (item) {
+            each(allItems, function (item) {
                 if (item !== callback) {
-                    preload(getScript(item));
+                    item             = getScript(item);
+                    items[item.name] = item;
+                    load(item, function() {
+                        if (allLoaded(items)) {
+                            callback();
+                        }
+                    });
                 }
             });
         }
-        /* END Older Browser support
-        ****************************/
-            
-
-        each(args, function (item, i) {                
-            if (item !== callback) {
-                item             = getScript(item);
-                items[item.name] = item;
-
-                // Only run the callback once when we finished looping over the other items
-                load(item, (i === args.length - 2) ? function () {                        
-                    if (allLoaded(items)) {
-                        one(callback);
-                    }
-
-                } : null);
-            }
-        });           
+        else {
+            current  = getScript(current);
+            var left = [].slice.call(arguments, 1);
+            /* Preload with text/cache hack (not good!)
+             * http://blog.getify.com/on-script-loaders/
+             * http://www.nczonline.net/blog/2010/12/21/thoughts-on-script-loaders/
+             * If caching is not configured correctly on the server, then scripts will load twice !
+             **************************************************************************************/
+            preLoad(current, function () {                
+                api.js.apply(null, left);
+            });
+        }          
 
         return api;
     };
@@ -560,7 +549,7 @@ head.feature();
         return api;
     };
 
-    api.ready = function (key, fn) {
+    api.ready = function (key, callback) {
         ///<summary>
         /// INFO: use cases:
         ///    head.ready(callBack)
@@ -576,29 +565,30 @@ head.feature();
         
         // shift arguments
         if (isFunction(key)) {
-            fn  = key;
-            key = "ALL";
+            callback = key;
+            key      = "ALL";
         }    
 
         // make sure arguments are sane
-        if (typeof key !== 'string' || !isFunction(fn)) {
+        if (typeof key !== 'string' || !isFunction(callback)) {
             return api;
         }
 
         // This can also be called when we trigger events based on filenames & labels
         var script = scripts[key];
-        // INFO: allLoaded() seems to be false quite often !!!
-        if (script && script.state === LOADED || key === 'ALL' && allLoaded() && isReady) {
-            one(fn);
+
+        // script already loaded --> execute and return
+        if (script && script.state === LOADED || key === 'ALL' && allLoaded() && isDomReady) {
+            one(callback);
             return api;
         }
 
         var arr = handlers[key];
         if (!arr) {
-            arr = handlers[key] = [fn];
+            arr = handlers[key] = [callback];
         }
         else {
-            arr.push(fn);
+            arr.push(callback);
         }
 
         return api;
@@ -611,7 +601,7 @@ head.feature();
         // does nothing
     }
     
-    function each(arr, fn) {
+    function each(arr, callback) {
         if (!arr) {
             return;
         }
@@ -623,7 +613,7 @@ head.feature();
 
         // do the job
         for (var i = 0, l = arr.length; i < l; i++) {
-            fn.call(arr, arr[i], i);
+            callback.call(arr, arr[i], i);
         }
     }
 
@@ -633,35 +623,35 @@ head.feature();
         return obj !== undefined && obj !== null && clas === type;
     }
 
-    function isFunction(el) {
-        return is("Function", el);
+    function isFunction(item) {
+        return is("Function", item);
     }
     
-    function isArray(el) {
-        return is("Array", el);
+    function isArray(item) {
+        return is("Array", item);
     }
     
     function toLabel(url) {
         ///<summary>Converts a url to a file label</summary>
-        var els   = url.split("/"),
-             name = els[els.length -1],
+        var items = url.split("/"),
+             name = items[items.length - 1],
              i    = name.indexOf("?");
 
         return i !== -1 ? name.substring(0, i) : name;
     }
     
-
-    
-    // call function once
-    function one(fn) {
-        fn = fn || noop;
+    // INFO: this look like a "im triggering callbacks all over the place, but only wanna run it one time function" ..should try to make everything work without it if possible
+    // INFO: Even better. Look into promises/defered like jQuery is doing
+    function one(callback) {
+        ///<summary>Execute a callback only once</summary>
+        callback = callback || noop;
         
-        if (fn._done) {
+        if (callback._done) {
              return;
         }
         
-        fn();
-        fn._done = 1;
+        callback();
+        callback._done = 1;
     }
 
     function getScript(item) {
@@ -701,74 +691,58 @@ head.feature();
         return script;
     }
 
-    function allLoaded(items) {       
+    function allLoaded(items) {
         items = items || scripts;
 
-        var isLoaded = false;
-        
         for (var name in items) {
             if (items.hasOwnProperty(name) && items[name].state !== LOADED) {
                 return false;
             }
-            
-            isLoaded = true;
         }
         
-        return isLoaded;
+        return true;
     }
 
-    function onPreload(script) {
+    function preLoad(script, callback) {
         ///<summary>Used with text/cache hack</summary>
-        script.state = PRELOADED;
+        callback = callback || noop;
 
-        each(script.onpreload, function (item) {
-            item.call();
+        scriptTag({ src: script.url, type: 'cache' }, function () {
+            // Delete state, because we already passed by load() for the preLoad() here
+            delete script.state;
+            load(script, callback);
         });
     }
 
-    function preload(script) {
-        ///<summary>User with text/cache hack</summary>
-        if (script.state === undefined) {
-            script.state     = PRELOADING;
-            script.onpreload = [];
-
-            scriptTag({ src: script.url, type: 'cache' }, function () {
-                onPreload(script);
-            });
-        }
-    }
-
     function load(script, callback) {
+        ///<summary>Used with normal loading logic</summary>
         callback = callback || noop;
-        
+
         if (script.state === LOADED) {
-            return callback && callback();
+            callback();
+            return;
         }
 
+        // INFO: why would we trigger a ready event when its not really loaded yet ?
         if (script.state === LOADING) {
-           return api.ready(script.name, callback);
-        }
-
-        if (script.state === PRELOADING) {
-            return script.onpreload.push(function () {                
-                load(script, callback);
-            });
+            api.ready(script.name, callback);
+            return;
         }
 
         script.state = LOADING;
 
         scriptTag(script.url, function() {
-
             script.state = LOADED;
             callback();
-
+            
             // handlers for this script
             each(handlers[script.name], function (fn) {
                 one(fn);
             });
 
-            // everything ready
-            if (allLoaded() && isReady) {
+            // dom is ready & no scripts are queued for loading
+            // INFO: shouldn't we be doing the same test above ?
+            if (isDomReady && allLoaded()) {
                 each(handlers.ALL, function (fn) {
                     one(fn);
                 });
@@ -791,7 +765,7 @@ head.feature();
             s.type = 'text/' + (src.type || 'javascript');
             s.src  = src.src || src;           
         }
-        
+       
         loadAsset(s, callback);
     }    
     function loadAsset(s, callback) {
@@ -800,29 +774,47 @@ head.feature();
         // code inspired from: https://github.com/unscriptable/curl/blob/master/src/curl.js
         s.onload  = s.onreadystatechange = process;
         s.onerror = error;
-        s.async   = false;
+        
+        /* Good read, but doesn't give much hope !
+         * http://blog.getify.com/on-script-loaders/
+         * http://www.nczonline.net/blog/2010/12/21/thoughts-on-script-loaders/
+         * https://hacks.mozilla.org/2009/06/defer/
+         */
+        
+        // ASYNC: load in parellel and execute as soon as possible
+        s.async = false;
+        // DEFER: load in parallel but maintain execution order
+        s.defer = false;
 
+        // INFO: we need a reference back to this, so maybe we should be passing it to the main function to begin with
+        var script = getScript(s.src || s.href);
         function error(event) {
             // need some error handling here !
 
             // release event listeners
             s.onload = s.onreadystatechange = s.onerror = null;
+            callback();
         }
 
         function process(event) {
             event = event || win.event;
-            // IE 6-9 will trigger 3 events
+            // IE 6-9 triggers 2 events
             //   1) event.type = readystatechange, s.readyState = loading
-            //   1) event.type = readystatechange, s.readyState = loaded
-            //   1) event.type = readystatechange, s.readyState = complete
+            //   2) event.type = readystatechange, s.readyState = loaded
+            //       a) We get this event when loading from a server
+            //   2) event.type = readystatechange, s.readyState = complete
+            //       a) We get this event when loading from the browsers cache
             
-            // IE 10 will trigger 2 events
+            // IE 10 triggers 2 events
             //   1) event.type = readystatechange, s.readyState = loading
             //   2) event.type = load            , s.readyState = complete
 
-            // All other browsers seem trigger 1 event
+            // Other browsers trigger 1 event
             //   1) event.type = load, s.readyState = undefined
-            if (event.type === 'load' || /complete/.test(s.readyState)) {                
+            //console.log("type:", event.type, " ,readyState:", s.readyState, " ", s.src, " ", s.type);
+            if (event.type === 'load' || /complete/.test(s.readyState)) {                                
+                script.state = LOADED;
+                
                 // release event listeners
                 s.onload = s.onreadystatechange = s.onerror = null;
                 callback();
@@ -830,12 +822,6 @@ head.feature();
             
             /* This part is for the text/cache handling & older browser support
             ********************************************************************/
-            var script = getScript(s.src || s.href); // should be moving this to the top, or change main method so we can act on the state of the script more easily
-            
-            if (event.type === 'readystatechange' && /loading/.test(s.readyState)) {
-                script.state = LOADING;
-            }
-            
             if (event.type === 'readystatechange' && /loaded/.test(s.readyState)) {                
                 script.state = LOADED;
                 
@@ -856,20 +842,27 @@ head.feature();
      * The much desired DOM ready check
      * Thanks to jQuery and http://javascript.nwbox.com/IEContentLoaded/
      ********************************************************************/
-    function fireReady() {
+    var readyTimeout;
+    function domReady() {
+        // INFO: ready will fire too soon if scripts are currently in the process of loading
+        if (!allLoaded()) {
+            // let's not get nasty by setting a timeout too small.. (loop mania guaranteed if scripts are queued)
+            win.clearTimeout(readyTimeout);
+            readyTimeout = win.setTimeout(domReady, 50);
+            return;
+        }
+        
         // Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
         if (!doc.body) {
-            win.setTimeout(fireReady, 5);
+            // let's not get nasty by setting a timeout too small.. (loop mania guaranteed if scripts are queued)
+            win.clearTimeout(readyTimeout);
+            readyTimeout = win.setTimeout(domReady, 50);
             return;
         }
 
-        if (!isReady) {
-            isReady = true;
+        if (!isDomReady) {
+            isDomReady = true;
 
-            each(queue, function (fn) {
-                one(fn);
-            });
-            
             each(handlers.ALL, function (fn) {
                 one(fn);
             });
@@ -878,34 +871,36 @@ head.feature();
     function domContentLoaded() {
         if (doc.addEventListener) {
             doc.removeEventListener("DOMContentLoaded", domContentLoaded, false);
-            fireReady();
+            domReady();
         } else if (doc.readyState === "complete") {
             // we're here because readyState === "complete" in oldIE
             // which is good enough for us to call the dom ready!
             doc.detachEvent("onreadystatechange", domContentLoaded);
-            fireReady();
+            domReady();
         }
     };
     
-    if (!isReady) {
+    if (!isDomReady) {
         if (doc.readyState === "complete") {
+            // let's not get nasty by setting a timeout too small.. (loop mania guaranteed if scripts are queued)
             // INFO: why would we set a timeout here ?
-            // win.setTimeout(fireReady, 5);
-            fireReady();
+            win.clearTimeout(readyTimeout);
+            readyTimeout = win.setTimeout(domReady, 1);
+            //domReady();
         }
         else if (doc.addEventListener) {
             // Use the handy event callback
             doc.addEventListener("DOMContentLoaded", domContentLoaded, false);
 
             // A fallback to window.onload, that will always work
-            win.addEventListener("load", fireReady, false);
+            win.addEventListener("load", domReady, false);
         }
         else {
             // Ensure firing before onload, maybe late but safe also for iframes
             doc.attachEvent("onreadystatechange", domContentLoaded);
 
             // A fallback to window.onload, that will always work
-            win.attachEvent("onload", fireReady);
+            win.attachEvent("onload", domReady);
             
             // If IE and not a frame
             // continually check to see if the document is ready
@@ -917,19 +912,20 @@ head.feature();
             
             if (top && top.doScroll) {
                 (function doScrollCheck() {
-                    if (!isReady) {
-
+                    if (!isDomReady) {
                         try {
                             // Use the trick by Diego Perini
                             // http://javascript.nwbox.com/IEContentLoaded/
                             top.doScroll("left");
                         } catch (error) {
-                            win.setTimeout(doScrollCheck, 50);
+                            // let's not get nasty by setting a timeout too small.. (loop mania guaranteed if scripts are queued)
+                            win.clearTimeout(readyTimeout);
+                            readyTimeout = win.setTimeout(doScrollCheck, 50);
                             return;
                         }
 
                         // and execute any waiting functions
-                        fireReady();
+                        domReady();
                     }
                 })();
             }

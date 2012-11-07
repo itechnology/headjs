@@ -23,19 +23,19 @@
         
         conf  = {
             width     : [240, 320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
-            widthCss  : { "gt": true, "gte": true, "lt": true, "lte": true, "eq": true },
+            widthCss  : { "gt": true, "gte": false, "lt": true, "lte": false, "eq": false },
             height    : [240, 320, 480, 600, 768, 800, 900, 1050, 1080],
-            heightCss : { "gt": true, "gte": true, "lt": true, "lte": true, "eq": true },
+            heightCss : { "gt": true, "gte": false, "lt": true, "lte": false, "eq": false },
             browsers  : [
-                          { ie     : { min: 6, max: 10 } },
-                          { chrome : { min: 8, max: 24 } },
-                          { ff     : { min: 3, max: 19 } },
-                          { ios    : { min: 3, max:  6 } },
-                          { android: { min: 2, max:  4 } },
-                          { webkit : { min: 9, max: 12 } },
-                          { opera  : { min: 9, max: 12 } }
+                          { ie     : { min: 6, max:  9 } }
+                       //,{ chrome : { min: 8, max: 24 } }
+                       //,{ ff     : { min: 3, max: 19 } }
+                       //,{ ios    : { min: 3, max:  6 } }
+                       //,{ android: { min: 2, max:  4 } }
+                       //,{ webkit : { min: 9, max: 12 } }
+                       //,{ opera  : { min: 9, max: 12 } }
                         ],
-            browserCss: { "gt": true, "gte": true, "lt": true, "lte": true, "eq": true },
+            browserCss: { "gt": true, "gte": false, "lt": true, "lte": false, "eq": true },
             section   : "section-",
             page      : "page-",
             head      : "head"
