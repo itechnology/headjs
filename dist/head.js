@@ -641,7 +641,7 @@ head.feature();
     }
     
     // INFO: this look like a "im triggering callbacks all over the place, but only wanna run it one time function" ..should try to make everything work without it if possible
-    // INFO: Even better. Look into promises/defered like jQuery is doing
+    // INFO: Even better. Look into promises/defered's like jQuery is doing
     function one(callback) {
         ///<summary>Execute a callback only once</summary>
         callback = callback || noop;
@@ -786,11 +786,15 @@ head.feature();
         // DEFER: load in parallel but maintain execution order
         s.defer = false;
 
-        // INFO: we need a reference back to this, so maybe we should be passing it to the main function to begin with
+        // INFO: we need a reference back to this (because we are setting the script.state below), so maybe we should be passing it to the main function to begin with
         var script = getScript(s.src || s.href);
         function error(event) {
             // need some error handling here !
+            // probably also a max timout to limit how long a script is allowed to stay in a LOADING state
 
+            // Consider as loaded even though we have an error, otherwise we might block other scripts from loading, or .ready() event from firing.
+            script.state = LOADED;
+            
             // release event listeners
             s.onload = s.onreadystatechange = s.onerror = null;
             callback();
@@ -844,7 +848,8 @@ head.feature();
      ********************************************************************/
     var readyTimeout;
     function domReady() {
-        // INFO: ready will fire too soon if scripts are currently in the process of loading
+        // INFO: head.ready() will fire too soon if scripts are currently in the process of loading
+        // INFO: This however means that head.ready() is now dependant on head.js() having finished loading all queued scripts
         if (!allLoaded()) {
             // let's not get nasty by setting a timeout too small.. (loop mania guaranteed if scripts are queued)
             win.clearTimeout(readyTimeout);
