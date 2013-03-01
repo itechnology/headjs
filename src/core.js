@@ -17,6 +17,7 @@
         conf  = {
             width  : [240, 320, 480, 640, 768, 800, 1024, 1280, 1440, 1680, 1920],
             height : [240, 320, 480, 600, 768, 800, 900, 1050, 1080],
+            html5  : true,
             section: "section-",
             page   : "page-",
             head   : "head"
@@ -86,7 +87,7 @@
 
     // browser type & version
     var ua     = nav.userAgent.toLowerCase(),
-        mobile = /mobile|midp/.test(ua);
+        mobile = /mobile|midp|(windows nt 6\.2.+arm|touch)/.test(ua);
     
     // useful for enabling/disabling feature (we can consider a desktop navigator to have more cpu/gpu power)        
     api.feature("mobile" ,  mobile, true);
@@ -195,10 +196,13 @@
             pushClass(browser + "-gte" + v);
         }
     }   
+    
+    pushClass(browser);
+    pushClass(browser + parseInt(version, 10));    
 
 
     // IE lt9 specific
-    if (browser === "ie" && version < 9) {
+    if (html5 && browser === "ie" && version < 9) {
         // HTML5 support : you still need to add html5 css initialization styles to your site
         // See: assets/html5.css
         each("abbr|article|aside|audio|canvas|details|figcaption|figure|footer|header|hgroup|mark|meter|nav|output|progress|section|summary|time|video".split("|"), function(el) {
